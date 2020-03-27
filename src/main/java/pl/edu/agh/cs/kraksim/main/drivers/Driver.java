@@ -13,6 +13,7 @@ public abstract class Driver implements Comparable<Driver> {
 	protected final int id;
 	protected final TravellingScheme.Cursor cursor;
 	protected final Router router;
+	protected final DriverArchetype archetype;
 	protected int departureTurn;
 	protected Color carColor;
 	protected boolean emergency;
@@ -21,9 +22,10 @@ public abstract class Driver implements Comparable<Driver> {
 			new Color(0xffa20025), new Color(0xffe51400), new Color(0xfffa6800), new Color(0xfff0a30a),
 			new Color(0xffe3c800),	new Color(0xff825a2c)};
 
-	protected Driver(int id, TravellingScheme scheme, Router router, boolean emergency) {
+	protected Driver(int id, TravellingScheme scheme, Router router, boolean emergency, DriverArchetype archetype) {
 		this.id = id;
 		this.router = router;
+		this.archetype = archetype;
 		cursor = scheme.cursor();
 		if (emergency) {
 			carColor = Color.WHITE;
@@ -90,5 +92,9 @@ public abstract class Driver implements Comparable<Driver> {
 
 	public DriverZones getAllowedZones() {
 		return null;
+	}
+
+	public DriverArchetype getArchetype() {
+		return archetype;
 	}
 }

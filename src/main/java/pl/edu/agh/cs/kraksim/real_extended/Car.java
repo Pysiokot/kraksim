@@ -51,6 +51,9 @@ public class Car {
 	private double switchLaneMethodRandom;	// random value used to calculate SwitchLaneMethod
 	protected int switchLaneUrgency = 0;	// number of turns car is in LaneSwitch.WANT_ ... -> reduces switch lane conditions
 
+	// 2020
+	private boolean isUsingDriverArchetype = false;
+
 	protected LaneSwitch switchToLane = LaneSwitch.NO_CHANGE;
 	
 	private enum SwitchLaneMethod  { INTERSECTION_LANE, LOCAL_TRAFFIC_ALGORITHM }
@@ -644,7 +647,14 @@ public class Car {
 		this.setBeforePos(this.getPosition());
 		
 		// Acceleration
-		this.velocity = Math.min(this.getSpeedLimit(), this.velocity+this.getAcceleration());
+		int speedLimit = this.getSpeedLimit();
+
+		if(isUsingDriverArchetype)
+		{
+			speedLimit *= 1+(driver.getArchetype().aggression / 2f - driver.getArchetype().fear / 3f);
+		}
+
+		this.velocity = Math.min(speedLimit, this.velocity+this.getAcceleration());
 		
 		// random decelerations, car model actions (Nagel-Schreckenberg multi-lane switch etc), sets switchToLane state 
 		handleCorrectModel(nextCar);
