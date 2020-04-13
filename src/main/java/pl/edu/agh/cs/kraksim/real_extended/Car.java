@@ -699,16 +699,17 @@ public class Car {
 	private void handleCorrectModel(Car nextCar) {
 		boolean velocityZero = this.getVelocity() <= 0; // VDR - check for v = 0 (slow start)
 		float decisionChance = this.currentLane.getParams().getRandomGenerator().nextFloat();
+		float rand = this.currentLane.getParams().getRandomGenerator().nextFloat();
 		CarMoveModel carMoveModel = this.currentLane.getCarMoveModel();
 		switch (carMoveModel.getName()) {
 		case CarMoveModel.MODEL_NAGEL:
 			if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_NAGEL_MOVE_PROB)) {
-				velocity--;
+				maybeDeccelerate(rand);
 			}
 			break;
 		case CarMoveModel.MODEL_MULTINAGEL: // is used by default, it works with obstacles and turn lanes on intersections
 			if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_MULTINAGEL_MOVE_PROB) && velocity > 1) {
-				velocity--;
+				maybeDeccelerate(rand);
 			}
 			this.switchLanesState();
 			break;
@@ -717,11 +718,11 @@ public class Car {
 			// if v = 0 => different (greater) chance of deceleration
 			if (velocityZero) {
 				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_VDR_0_PROB)) {
-					--velocity;
+					maybeDeccelerate(rand);
 				}
 			} else {
 				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_VDR_MOVE_PROB)) {
-					--velocity;
+					maybeDeccelerate(rand);
 				}
 			}
 			break;
@@ -729,7 +730,7 @@ public class Car {
 		case CarMoveModel.MODEL_BRAKELIGHT:
 			if (velocityZero) {
 				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_0_PROB)) {
-					--velocity;
+					maybeDeccelerate(rand);
 				}
 			} else {
 				if (nextCar != null && nextCar.isBraking()) {
@@ -738,7 +739,7 @@ public class Car {
 					double th = (nextCar.getPosition() - this.getPosition()) / (double) velocity;
 					if (th < ts) {
 						if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_BRAKE_PROB)) {
-							--velocity;
+							maybeDeccelerate(rand);
 							this.setBraking(true, this.isEmergency());
 						} else {
 							this.setBraking(false, this.isEmergency());
@@ -746,7 +747,7 @@ public class Car {
 					}
 				} else {
 					if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_MOVE_PROB)) {
-						--velocity;
+						maybeDeccelerate(rand);
 						this.setBraking(true, this.isEmergency());
 					} else {
 						this.setBraking(false, this.isEmergency());
@@ -758,6 +759,23 @@ public class Car {
 			throw new RuntimeException("Unknown model! " + carMoveModel.getName());
 		}
 
+	}
+
+	private void maybeDeccelerate(float chance) {
+		if(!isUsingDriverArchetype)
+		{
+			velocity--;
+			return;
+		}
+
+		if(driver.getArchetype().getFear() > 0.5f)
+		{
+			velocity--;
+		}
+		else if(chance >= driver.getArchetype().getAggression())
+		{
+			velocity--;
+		}
 	}
 
 	/**

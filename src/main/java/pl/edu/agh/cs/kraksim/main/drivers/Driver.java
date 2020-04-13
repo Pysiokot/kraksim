@@ -25,7 +25,10 @@ public abstract class Driver implements Comparable<Driver> {
 	protected Driver(int id, TravellingScheme scheme, Router router, boolean emergency, DriverArchetype archetype) {
 		this.id = id;
 		this.router = router;
-		this.archetype = archetype;
+//		this.archetype = archetype;
+
+		this.archetype = new DriverArchetype();
+
 		cursor = scheme.cursor();
 		if (emergency) {
 			carColor = Color.WHITE;

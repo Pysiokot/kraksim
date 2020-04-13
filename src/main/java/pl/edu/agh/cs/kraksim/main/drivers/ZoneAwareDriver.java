@@ -14,7 +14,7 @@ public class ZoneAwareDriver extends Driver {
 	private final DecisionHelper decisionHelper;
 
 	public ZoneAwareDriver(int id, TravellingScheme scheme, Router router, boolean emergency, DecisionHelper decisionHelper, DriverZones allowedZones) {
-		super(id, scheme, router, emergency);
+		super(id, scheme, router, emergency, new DriverArchetype());
 		this.allowedZones = allowedZones;
 		this.decisionHelper = decisionHelper;
 	}
