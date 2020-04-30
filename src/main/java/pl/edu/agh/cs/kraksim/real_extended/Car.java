@@ -350,7 +350,7 @@ public class Car {
 	protected boolean isMyLaneBad(Car carInFront) {
 		int gapThisFront = 	carInFront != null ? carInFront.getPosition() - this.pos - 1 : this.currentLane.linkLength() - this.pos -1;
 		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
-		return gapThisFront <= this.velocity || carInFrontSlower;
+		return gapThisFront <= this.velocity || !carInFrontSlower;
 	}
 	
 	/** other lane better if it has more space to next car in front */
@@ -377,7 +377,7 @@ public class Car {
 			int gapThisFront = carInFront != null	? carInFront.getPosition() - this.pos - 1	: this.currentLane.linkLength() - this.pos - 1;
 			if(gapThisFront <= getFutureVelocity() * 2)
 			{
-				isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 1 < this.getFutureVelocity();
+				 isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 1 < this.getVelocity() + this.getAcceleration();
 			}
 		}
 		return isCarInFrontSlower;
