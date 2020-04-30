@@ -220,7 +220,7 @@ public class Car {
 		}
 		
 		// if we have to change find direction that will improve current lane (not to good but to better than current)
-		if(isDirectionBetterForNextIntersection(LaneSwitch.LEFT)) {	// maybe left is better
+		if(isDirectionBetterForNextIntersection(LaneSwitch.LEFT) || isCarInFrontSlower(this.getCurrentLane().getFrontCar(this))) {	// maybe left is better
 			// left is better
 			if(this.checkIfCanSwitchTo(LaneSwitch.LEFT)) {
 				this.switchToLane = LaneSwitch.LEFT;
@@ -233,7 +233,7 @@ public class Car {
 				}
 			}
 			
-		} else if(isDirectionBetterForNextIntersection(LaneSwitch.RIGHT)) {	// maybe right is better
+		} else if(isDirectionBetterForNextIntersection(LaneSwitch.RIGHT) || isCarInFrontSlower(this.getCurrentLane().getFrontCar(this))) {	// maybe right is better
 			// right is better
 			if(this.checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
 				this.switchToLane = LaneSwitch.RIGHT;
@@ -251,7 +251,7 @@ public class Car {
 //			throw new RuntimeException("no good action for next intersection");
 		}
 		
-		if(!this.getLaneFromLaneSwitchState().getLane().existsAtThisPosition(pos)) {
+		if(this.getLaneFromLaneSwitchState() != null && !this.getLaneFromLaneSwitchState().getLane().existsAtThisPosition(pos)) {
 			// Target lane starts later, nothing to do, we are on best possible lane
 			this.switchToLane = LaneSwitch.NO_CHANGE;
 		}
@@ -374,9 +374,10 @@ public class Car {
 		boolean isCarInFrontSlower = false;
 		if(isUsingDriverArchetype)
 		{
-			if(driver.getArchetype().getAggression() > 0.7f)
+			int gapThisFront = carInFront != null	? carInFront.getPosition() - this.pos - 1	: this.currentLane.linkLength() - this.pos - 1;
+			if(gapThisFront <= getFutureVelocity() * 2)
 			{
-				isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 2 < this.getFutureVelocity();
+				isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 1 < this.getFutureVelocity();
 			}
 		}
 		return isCarInFrontSlower;
