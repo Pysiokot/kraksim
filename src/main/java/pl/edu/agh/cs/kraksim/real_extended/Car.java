@@ -201,9 +201,12 @@ public class Car {
 		if(targetLane == null)	return false;	// no lane can't be better
 		Action actionIntersection = this.getActionForNextIntersection();
 		int laneIntersectionAbs = actionIntersection.getSource().getAbsoluteNumber();
+
+		int dstToIntersection = isUsingDriverArchetype ? this.getCurrentLane().linkLength() - this.getPosition() - 1 : 200;
+
 		return (this.isGivenLaneGoodForNextIntersection(targetLane.getLane())
 				|| Math.abs(targetLane.getLane().getAbsoluteNumber() - laneIntersectionAbs) < Math.abs(this.currentLane.getLane().getAbsoluteNumber() - laneIntersectionAbs)
-				);
+				) && dstToIntersection < 60;
 	}
 	
 	/**
@@ -344,12 +347,14 @@ public class Car {
 	/** is distance to next car less than my speed  */
 	protected boolean isMyLaneBad(Car carInFront) {
 		int gapThisFront = 	carInFront != null ? carInFront.getPosition() - this.pos - 1 : this.currentLane.linkLength() - this.pos -1;
-		return gapThisFront <= this.velocity;
+		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
+		return gapThisFront <= this.velocity || carInFrontSlower;
 	}
 	
 	/** other lane better if it has more space to next car in front */
 	protected boolean isOtherLaneBetter(Car carInFront, Car otherCarFront, LaneRealExt otherLane) {
 		int gapThisFront = carInFront != null	? carInFront.getPosition() - this.pos - 1	: this.currentLane.linkLength() - this.pos - 1;
+		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
 		int gapNeiFront = otherCarFront != null	? otherCarFront.getPosition() - this.pos - 1	: otherLane.linkLength() - this.pos - 1;
 		boolean obstacleClose = false;
 		for(Integer obstacleIndex : otherLane.getLane().getActiveBlockedCellsIndexList()) {
@@ -360,9 +365,21 @@ public class Car {
 				break;
 			}
 		}
-		return (gapNeiFront-1) > gapThisFront && !obstacleClose;
+		return ((gapNeiFront-1) > gapThisFront && !obstacleClose) || carInFrontSlower;
 	}
-	
+
+	private boolean isCarInFrontSlower(Car carInFront) {
+		boolean isCarInFrontSlower = false;
+		if(isUsingDriverArchetype)
+		{
+			if(driver.getArchetype().getAggression() > 0.7f)
+			{
+				isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 2 < this.getFutureVelocity();
+			}
+		}
+		return isCarInFrontSlower;
+	}
+
 	/** is it safe to switch lanes, tests my speed, others speed, gaps between cars, niceness of lane switch (how much space do I need) */
 	protected boolean canSwitchLaneToOther(Car otherCarBehind, Car otherCarFront, LaneRealExt otherLane) {
 		int gapNeiFront =	otherCarFront != null	? otherCarFront.getPosition() - this.pos - 1 	: otherLane.linkLength() - this.pos - 1;
