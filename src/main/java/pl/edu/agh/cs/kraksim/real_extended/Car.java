@@ -52,7 +52,7 @@ public class Car {
 	protected int switchLaneUrgency = 0;	// number of turns car is in LaneSwitch.WANT_ ... -> reduces switch lane conditions
 
 	// 2020
-	private boolean isUsingDriverArchetype = false;
+	private boolean isUsingDriverArchetype = true;
 
 	protected LaneSwitch switchToLane = LaneSwitch.NO_CHANGE;
 	
@@ -202,11 +202,11 @@ public class Car {
 		Action actionIntersection = this.getActionForNextIntersection();
 		int laneIntersectionAbs = actionIntersection.getSource().getAbsoluteNumber();
 
-		int dstToIntersection = isUsingDriverArchetype ? this.getCurrentLane().linkLength() - this.getPosition() - 1 : 200;
+		int dstToIntersection = isUsingDriverArchetype ? this.getCurrentLane().linkLength() - this.getPosition() - 1 : 10;
 
 		return (this.isGivenLaneGoodForNextIntersection(targetLane.getLane())
 				|| Math.abs(targetLane.getLane().getAbsoluteNumber() - laneIntersectionAbs) < Math.abs(this.currentLane.getLane().getAbsoluteNumber() - laneIntersectionAbs)
-				) && dstToIntersection < 60;
+				) && dstToIntersection < 100;
 	}
 	
 	/**
@@ -246,7 +246,9 @@ public class Car {
 			}
 			
 		} else {
-			throw new RuntimeException("no good action for next intersection");			
+			this.switchToLane = LaneSwitch.NO_CHANGE;
+
+//			throw new RuntimeException("no good action for next intersection");
 		}
 		
 		if(!this.getLaneFromLaneSwitchState().getLane().existsAtThisPosition(pos)) {

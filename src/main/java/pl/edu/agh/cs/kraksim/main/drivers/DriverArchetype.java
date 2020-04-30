@@ -31,6 +31,9 @@ public class DriverArchetype {
             this.fear = 0.25f;
             this.aggression = 0.3f;
         }
+
+//        this.aggression = 1.0f;
+//        this.fear = 0.0f;
     }
 
     public float getAggression() {
