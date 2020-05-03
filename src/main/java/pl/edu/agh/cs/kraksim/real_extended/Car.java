@@ -349,8 +349,8 @@ public class Car {
 	/** is distance to next car less than my speed  */
 	protected boolean isMyLaneBad(Car carInFront) {
 		int gapThisFront = 	carInFront != null ? carInFront.getPosition() - this.pos - 1 : this.currentLane.linkLength() - this.pos -1;
-		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
-		return gapThisFront <= this.velocity || carInFrontSlower;
+
+		return gapThisFront <= this.velocity || isCarInFrontSlower(carInFront);
 	}
 	
 	/** other lane better if it has more space to next car in front */
@@ -721,59 +721,59 @@ public class Car {
 		float rand = this.currentLane.getParams().getRandomGenerator().nextFloat();
 		CarMoveModel carMoveModel = this.currentLane.getCarMoveModel();
 		switch (carMoveModel.getName()) {
-		case CarMoveModel.MODEL_NAGEL:
-			if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_NAGEL_MOVE_PROB)) {
-				maybeDeccelerate(rand);
-			}
-			break;
-		case CarMoveModel.MODEL_MULTINAGEL: // is used by default, it works with obstacles and turn lanes on intersections
-			if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_MULTINAGEL_MOVE_PROB) && velocity > 1) {
-				maybeDeccelerate(rand);
-			}
-			this.switchLanesState();
-			break;
-		// deceleration if vdr
-		case CarMoveModel.MODEL_VDR:
-			// if v = 0 => different (greater) chance of deceleration
-			if (velocityZero) {
-				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_VDR_0_PROB)) {
+			case CarMoveModel.MODEL_NAGEL:
+				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_NAGEL_MOVE_PROB)) {
 					maybeDeccelerate(rand);
 				}
-			} else {
-				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_VDR_MOVE_PROB)) {
+				break;
+			case CarMoveModel.MODEL_MULTINAGEL: // is used by default, it works with obstacles and turn lanes on intersections
+				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_MULTINAGEL_MOVE_PROB) && velocity > 1) {
 					maybeDeccelerate(rand);
 				}
-			}
-			break;
-		// Brake light model
-		case CarMoveModel.MODEL_BRAKELIGHT:
-			if (velocityZero) {
-				if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_0_PROB)) {
-					maybeDeccelerate(rand);
+				this.switchLanesState();
+				break;
+			// deceleration if vdr
+			case CarMoveModel.MODEL_VDR:
+				// if v = 0 => different (greater) chance of deceleration
+				if (velocityZero) {
+					if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_VDR_0_PROB)) {
+						maybeDeccelerate(rand);
+					}
+				} else {
+					if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_VDR_MOVE_PROB)) {
+						maybeDeccelerate(rand);
+					}
 				}
-			} else {
-				if (nextCar != null && nextCar.isBraking()) {
-					int threshold = carMoveModel.getIntParameter(CarMoveModel.MODEL_BRAKELIGHT_DISTANCE_THRESHOLD);
-					double ts = (threshold < velocity) ? threshold : velocity;
-					double th = (nextCar.getPosition() - this.getPosition()) / (double) velocity;
-					if (th < ts) {
-						if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_BRAKE_PROB)) {
+				break;
+			// Brake light model
+			case CarMoveModel.MODEL_BRAKELIGHT:
+				if (velocityZero) {
+					if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_0_PROB)) {
+						maybeDeccelerate(rand);
+					}
+				} else {
+					if (nextCar != null && nextCar.isBraking()) {
+						int threshold = carMoveModel.getIntParameter(CarMoveModel.MODEL_BRAKELIGHT_DISTANCE_THRESHOLD);
+						double ts = (threshold < velocity) ? threshold : velocity;
+						double th = (nextCar.getPosition() - this.getPosition()) / (double) velocity;
+						if (th < ts) {
+							if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_BRAKE_PROB)) {
+								maybeDeccelerate(rand);
+								this.setBraking(true, this.isEmergency());
+							} else {
+								this.setBraking(false, this.isEmergency());
+							}
+						}
+					} else {
+						if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_MOVE_PROB)) {
 							maybeDeccelerate(rand);
 							this.setBraking(true, this.isEmergency());
 						} else {
 							this.setBraking(false, this.isEmergency());
 						}
 					}
-				} else {
-					if (decisionChance < carMoveModel.getFloatParameter(CarMoveModel.MODEL_BRAKELIGHT_MOVE_PROB)) {
-						maybeDeccelerate(rand);
-						this.setBraking(true, this.isEmergency());
-					} else {
-						this.setBraking(false, this.isEmergency());
-					}
 				}
-			}
-			break;
+				break;
 		default:
 			throw new RuntimeException("Unknown model! " + carMoveModel.getName());
 		}
@@ -814,17 +814,26 @@ public class Car {
 			this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));	// by default reduce speed to 1 if looking for a lane switch	
 			this.switchLaneUrgency++;
 		}
-		
+
+		int distaneToIntersection = this.currentLane.linkLength() - this.pos;
+
 		// force stop and force lane switch if on wrong lane for intersection and close to the end of the road
-		if(this.getActionForNextIntersection() != null && !this.isThisLaneGoodForNextIntersection()) {	
-			int lanesDifForCorrectForIntersection 
-				= Math.abs(this.currentLane.getLane().getAbsoluteNumber() - this.getActionForNextIntersection().getSource().getAbsoluteNumber());
-			int distaneToIntersection = this.currentLane.linkLength() - this.pos;
-			if(!this.isThisLaneGoodForNextIntersection()
-					&& distaneToIntersection < lanesDifForCorrectForIntersection * Integer.parseInt(KraksimConfigurator.getProperty("forceStopOnWrongLaneForIntersection"))) {
-				this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 0));
+		if(distaneToIntersection < 100)
+		{
+			if(this.getActionForNextIntersection() != null && !this.isThisLaneGoodForNextIntersection()) {
+				int lanesDifForCorrectForIntersection
+						= Math.abs(this.currentLane.getLane().getAbsoluteNumber() - this.getActionForNextIntersection().getSource().getAbsoluteNumber());
+				if(!this.isThisLaneGoodForNextIntersection()
+						&& distaneToIntersection < lanesDifForCorrectForIntersection * Integer.parseInt(KraksimConfigurator.getProperty("forceStopOnWrongLaneForIntersection"))) {
+					this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 0));
+				}
 			}
 		}
+		else if(this.isMyLaneBad(nextCar))
+		{
+			this.setSwitchStateToRunOverCar(nextCar);
+		}
+
 		
 		int freeCellsInFront;
 		if (nextCar != null) {
@@ -882,6 +891,22 @@ public class Car {
 		
 		this.setPosition(this.pos + distanceTraveled - distanceTraveledOnPreviousLane);
 		this.setVelocity(distanceTraveled);
+	}
+
+	private void setSwitchStateToRunOverCar(Car nextCar)
+	{
+		if(this.checkIfCanSwitchTo(LaneSwitch.LEFT))
+		{
+			this.switchToLane = LaneSwitch.LEFT;
+		}
+		else if(this.checkIfCanSwitchTo(LaneSwitch.RIGHT))
+		{
+			this.switchToLane = LaneSwitch.RIGHT;
+		}
+		else
+		{
+			this.switchToLane = LaneSwitch.NO_CHANGE;
+		}
 	}
 
 	/**
