@@ -21,6 +21,7 @@ public class Car {
 	private static final Logger LOGGER = Logger.getLogger(Car.class);
 	private final boolean isTEST2013Enabled;
 	private final Driver driver;
+	private final int cellsToIntersection = 150;
 	private List<Node> TEST2013intersectionsList = new LinkedList<>();
 	private Map<Node, List<Link>> TEST2013linkIntersectionsList = new HashMap<>();
 	/*
@@ -55,7 +56,7 @@ public class Car {
 	private boolean isUsingDriverArchetype = true;
 
 	protected LaneSwitch switchToLane = LaneSwitch.NO_CHANGE;
-	
+
 	private enum SwitchLaneMethod  { INTERSECTION_LANE, LOCAL_TRAFFIC_ALGORITHM }
 	private SwitchLaneMethod switchLaneMethod;
 	
@@ -350,6 +351,7 @@ public class Car {
 	protected boolean isMyLaneBad(Car carInFront) {
 		int gapThisFront = 	carInFront != null ? carInFront.getPosition() - this.pos - 1 : this.currentLane.linkLength() - this.pos -1;
 		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
+
 		return gapThisFront <= this.velocity || carInFrontSlower;
 	}
 	
@@ -544,6 +546,12 @@ public class Car {
 		// 	if obstacle in front - try to switch
 		//	if car dont want to switch - check setSwitchToLaneStateForAlgorithm - maybe it will switch
 
+		int distanceToIntersection = this.currentLane.linkLength() - this.pos - 1;
+		if(distanceToIntersection > 200)
+		{
+			this.switchLaneToRunOverCar(this.currentLane.getFrontCar(this));
+		}
+
 		// calculate distance to nearest obstacle, must be not more than obstacleVisibility param
 		int distanceToNextObstacle = Integer.MAX_VALUE;
 		for(Integer obstacleIndex : this.currentLane.getLane().getActiveBlockedCellsIndexList()) {
@@ -677,7 +685,13 @@ public class Car {
 		
 		// random decelerations, car model actions (Nagel-Schreckenberg multi-lane switch etc), sets switchToLane state 
 		handleCorrectModel(nextCar);
-		
+
+		// if we are far from intersection we're trying to run over slower cars
+		if(this.currentLane.linkLength() - this.pos - 1 > cellsToIntersection)
+		{
+			switchLaneToRunOverCar(nextCar);
+		}
+
 		driveCar(nextCar);
 		
 		fireAllInductionLoopPointers();
@@ -814,18 +828,23 @@ public class Car {
 			this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));	// by default reduce speed to 1 if looking for a lane switch	
 			this.switchLaneUrgency++;
 		}
-		
+
+		int distaneToIntersection = this.currentLane.linkLength() - this.pos;
 		// force stop and force lane switch if on wrong lane for intersection and close to the end of the road
-		if(this.getActionForNextIntersection() != null && !this.isThisLaneGoodForNextIntersection()) {	
-			int lanesDifForCorrectForIntersection 
-				= Math.abs(this.currentLane.getLane().getAbsoluteNumber() - this.getActionForNextIntersection().getSource().getAbsoluteNumber());
-			int distaneToIntersection = this.currentLane.linkLength() - this.pos;
+		if(this.getActionForNextIntersection() != null && !this.isThisLaneGoodForNextIntersection()) {
+			int lanesDifForCorrectForIntersection
+					= Math.abs(this.currentLane.getLane().getAbsoluteNumber() - this.getActionForNextIntersection().getSource().getAbsoluteNumber());
+
+			// randomizing line to stop between 0.5 * forceStopOnWrongLaneForIntersection and forceStopOnWrongLaneForIntersection to avoid situations
+			// when two cars stop on the wrong lanes in the same time and wait for moment to switch
+			int laneToStop = (int)Math.floor((double)Integer.parseInt(KraksimConfigurator.getProperty("forceStopOnWrongLaneForIntersection")) * ((this.currentLane.getParams().getRandomGenerator().nextFloat() / 2f) + 0.5f));
+
 			if(!this.isThisLaneGoodForNextIntersection()
-					&& distaneToIntersection < lanesDifForCorrectForIntersection * Integer.parseInt(KraksimConfigurator.getProperty("forceStopOnWrongLaneForIntersection"))) {
+					&& distaneToIntersection < lanesDifForCorrectForIntersection * laneToStop) {
 				this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 0));
 			}
 		}
-		
+
 		int freeCellsInFront;
 		if (nextCar != null) {
 			freeCellsInFront = nextCar.getPosition() - this.pos - 1;
@@ -882,6 +901,46 @@ public class Car {
 		
 		this.setPosition(this.pos + distanceTraveled - distanceTraveledOnPreviousLane);
 		this.setVelocity(distanceTraveled);
+	}
+
+	private void switchLaneToRunOverCar(Car nextCar)
+	{
+		if(!isUsingDriverArchetype)
+		{
+			return;
+		}
+
+		double runOverPropability = 0f;
+
+		if(this.driver.getArchetype().getAggression() > 0.5f)
+		{
+			runOverPropability += 0.2f;
+		}
+
+		double roadPercentage = (this.getPosition() - 1) / (double)(this.getCurrentLane().linkLength() - cellsToIntersection);
+
+		runOverPropability += (1f - roadPercentage) / 2f;
+
+		double speedPercentage = this.getVelocity() / (double)this.currentLane.getSpeedLimit();
+
+		runOverPropability += speedPercentage * 0.3f;
+
+		float decisionChance = this.currentLane.getParams().getRandomGenerator().nextFloat();
+
+		if(decisionChance < runOverPropability)
+		{
+			if(isMyLaneBad(nextCar) && checkIfCanSwitchTo(LaneSwitch.LEFT)) {
+				this.switchToLane = LaneSwitch.LEFT;
+			}
+			else if (isMyLaneBad(nextCar) && checkIfCanSwitchTo(LaneSwitch.RIGHT))
+			{
+				this.switchToLane = LaneSwitch.RIGHT;
+			}
+			else
+			{
+				this.switchToLane = LaneSwitch.NO_CHANGE;
+			}
+		}
 	}
 
 	/**
