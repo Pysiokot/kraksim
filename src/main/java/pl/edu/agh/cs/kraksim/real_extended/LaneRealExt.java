@@ -291,7 +291,12 @@ public class LaneRealExt implements LaneBlockIface, LaneCarInfoIface, LaneMonIfa
 	}
 
 	public Car getBehindCar(Car car) {
-		return getBehindCar(car.getPosition());
+		if(car == null)
+			return null;
+		else
+		{
+			return getBehindCar(car.getPosition());
+		}
 	}
 	
 	public Car getBehindCar(int pos) {

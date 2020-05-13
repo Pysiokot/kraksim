@@ -54,6 +54,8 @@ public class Car {
 
 	// 2020
 	private boolean isUsingDriverArchetype = true;
+	private int accelerationModifier = 1; // preffered number from -2 to 2 - 1 is default
+	private int accelerationModifierTurnCounter = 0;
 
 	protected LaneSwitch switchToLane = LaneSwitch.NO_CHANGE;
 
@@ -216,7 +218,7 @@ public class Car {
 	private void setSwitchToLaneStateForIntersection() {
 		if(isThisLaneGoodForNextIntersection()) {
 			// if this is good lane - dont change
-			this.switchToLane = LaneSwitch.NO_CHANGE;	// current lane is good
+			setLaneSwitch(LaneSwitch.NO_CHANGE);	// current lane is good
 			return;
 		}
 		
@@ -224,37 +226,37 @@ public class Car {
 		if(isDirectionBetterForNextIntersection(LaneSwitch.LEFT)) {	// maybe left is better
 			// left is better
 			if(this.checkIfCanSwitchTo(LaneSwitch.LEFT)) {
-				this.switchToLane = LaneSwitch.LEFT;
+				setLaneSwitch(LaneSwitch.LEFT);
 			} else {
 				// we want to go left but its not possible, we can go to forge switch state (WANTS_LEFT) but we have to be lucky second time
 				if(this.currentLane.getParams().getRandomGenerator().nextDouble() < this.switchLaneActionProbability()) {
-					this.switchToLane = LaneSwitch.WANTS_LEFT;	
+					setLaneSwitch(LaneSwitch.WANTS_LEFT);
 				} else {
-					this.switchToLane = LaneSwitch.NO_CHANGE;	
+					setLaneSwitch(LaneSwitch.NO_CHANGE);
 				}
 			}
 			
 		} else if(isDirectionBetterForNextIntersection(LaneSwitch.RIGHT)) {	// maybe right is better
 			// right is better
 			if(this.checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
-				this.switchToLane = LaneSwitch.RIGHT;
+				setLaneSwitch(LaneSwitch.RIGHT);
 			} else {
 				if(this.currentLane.getParams().getRandomGenerator().nextDouble() < this.switchLaneActionProbability()) {
-					this.switchToLane = LaneSwitch.WANTS_RIGHT;
+					setLaneSwitch(LaneSwitch.WANTS_RIGHT);
 				} else {
-					this.switchToLane = LaneSwitch.NO_CHANGE;	
+					setLaneSwitch(LaneSwitch.NO_CHANGE);
 				}
 			}
 			
 		} else {
-			this.switchToLane = LaneSwitch.NO_CHANGE;
+			setLaneSwitch(LaneSwitch.NO_CHANGE);
 
 //			throw new RuntimeException("no good action for next intersection");
 		}
 		
 		if(!this.getLaneFromLaneSwitchState().getLane().existsAtThisPosition(pos)) {
 			// Target lane starts later, nothing to do, we are on best possible lane
-			this.switchToLane = LaneSwitch.NO_CHANGE;
+			setLaneSwitch(LaneSwitch.NO_CHANGE);
 		}
 	}
 	
@@ -291,13 +293,13 @@ public class Car {
 		
 		//	Choose best lane to switch base on gap to next car
 		if(switchLaneForceLeft > switchLaneForceRight) {
-			this.switchToLane = LaneSwitch.LEFT;	// left is better
+			setLaneSwitch(LaneSwitch.LEFT);	// left is better
 		} else if(switchLaneForceLeft < switchLaneForceRight) {
-			this.switchToLane = LaneSwitch.RIGHT;	// right is better
+			setLaneSwitch(LaneSwitch.RIGHT);	// right is better
 		} else if(switchLaneForceLeft == switchLaneForceRight && switchLaneForceLeft > 0) {
-			this.switchToLane = LaneSwitch.RIGHT;	// its the same and bots are good (>0) -> better to go right
+			setLaneSwitch(LaneSwitch.RIGHT);	// its the same and bots are good (>0) -> better to go right
 		} else {
-			this.switchToLane = LaneSwitch.NO_CHANGE;	// there are no good lanes to switch
+			setLaneSwitch(LaneSwitch.NO_CHANGE);	// there are no good lanes to switch
 		}
 	}
 	
@@ -566,51 +568,51 @@ public class Car {
 			//System.out.println("obstacle " + desiredLaneNumber);
 			if(desiredLaneNumber < currentLane.getLane().getAbsoluteNumber()){
 				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.LEFT)){
-					this.switchToLane = LaneSwitch.LEFT;
+					setLaneSwitch(LaneSwitch.LEFT);
 				}
 				else{
 					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
-						this.switchToLane = LaneSwitch.WANTS_LEFT;						
+						setLaneSwitch(LaneSwitch.WANTS_LEFT);
 					} else {
-						this.switchToLane = LaneSwitch.NO_CHANGE;
+						setLaneSwitch(LaneSwitch.NO_CHANGE);
 					}
 				}
 			}
 			else if(desiredLaneNumber > currentLane.getLane().getAbsoluteNumber()){
 				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.RIGHT)){
-					this.switchToLane = LaneSwitch.RIGHT;
+					setLaneSwitch(LaneSwitch.RIGHT);
 				}
 				else{
 					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
-						this.switchToLane = LaneSwitch.WANTS_RIGHT;						
+						setLaneSwitch(LaneSwitch.WANTS_RIGHT);
 					} else {
-						this.switchToLane = LaneSwitch.NO_CHANGE;
+						setLaneSwitch(LaneSwitch.NO_CHANGE);
 					}
 				}
 			}
 			else{
-				this.switchToLane = LaneSwitch.NO_CHANGE;
+				setLaneSwitch(LaneSwitch.NO_CHANGE);
 			}
 		}
 		else if (!isEmergency() && this.currentLane.getBehindCar(this) != null && this.currentLane.getBehindCar(this).isEmergency()) {
 			if(this.getCurrentLane().hasRightNeighbor() && this.getCurrentLane().rightNeighbor().getLane().isMainLane()) {	
 				if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
-					this.switchToLane = LaneSwitch.RIGHT;
+					setLaneSwitch(LaneSwitch.RIGHT);
 				} else {
-					this.switchToLane = LaneSwitch.WANTS_RIGHT;
+					setLaneSwitch(LaneSwitch.WANTS_RIGHT);
 				} 
 			}
 		} 
 		// if car wanted to switch lanes in previous turn, check if its possible now
 		else if(this.switchToLane == LaneSwitch.WANTS_LEFT) {
 			if(checkIfCanSwitchTo(LaneSwitch.LEFT)) {
-				this.switchToLane = LaneSwitch.LEFT;
+				setLaneSwitch(LaneSwitch.LEFT);
 			}
 			
 		} 
 		else if(this.switchToLane == LaneSwitch.WANTS_RIGHT) {
 			if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
-				this.switchToLane = LaneSwitch.RIGHT;
+				setLaneSwitch(LaneSwitch.RIGHT);
 			}
 		} 
 		else {	
@@ -646,7 +648,7 @@ public class Car {
 		
 		// if u want to switch to lane which does not exists, u dont want to switch lanes
 		if(this.getLaneFromLaneSwitchState() == null) {
-			this.switchToLane = LaneSwitch.NO_CHANGE;
+			setLaneSwitch(LaneSwitch.NO_CHANGE);
 		}
 		
 	}
@@ -667,6 +669,18 @@ public class Car {
 			return;
 		}
 
+		if(isUsingDriverArchetype)
+		{
+			if(this.accelerationModifierTurnCounter != 0)
+			{
+				this.accelerationModifierTurnCounter--;
+			}
+			else
+			{
+				setAccelerationModifier(1);
+			}
+		}
+
 		Car nextCar = this.currentLane.getFrontCar(this);
 		
 		// remember starting point
@@ -675,11 +689,6 @@ public class Car {
 		
 		// Acceleration
 		int speedLimit = this.getSpeedLimit();
-
-		if(isUsingDriverArchetype)
-		{
-			speedLimit *= 1+(driver.getArchetype().aggression / 2f - driver.getArchetype().fear / 3f);
-		}
 
 		this.velocity = Math.min(speedLimit, this.velocity+this.getAcceleration());
 		
@@ -912,10 +921,7 @@ public class Car {
 
 		double runOverPropability = 0f;
 
-		if(this.driver.getArchetype().getAggression() > 0.5f)
-		{
-			runOverPropability += 0.2f;
-		}
+		runOverPropability += this.driver.getArchetype().aggression * 0.2f;
 
 		double roadPercentage = (this.getPosition() - 1) / (double)(this.getCurrentLane().linkLength() - cellsToIntersection);
 
@@ -930,15 +936,15 @@ public class Car {
 		if(decisionChance < runOverPropability)
 		{
 			if(isMyLaneBad(nextCar) && checkIfCanSwitchTo(LaneSwitch.LEFT)) {
-				this.switchToLane = LaneSwitch.LEFT;
+				setLaneSwitch(LaneSwitch.LEFT);
 			}
 			else if (isMyLaneBad(nextCar) && checkIfCanSwitchTo(LaneSwitch.RIGHT))
 			{
-				this.switchToLane = LaneSwitch.RIGHT;
+				setLaneSwitch(LaneSwitch.RIGHT);
 			}
 			else
 			{
-				this.switchToLane = LaneSwitch.NO_CHANGE;
+				setLaneSwitch(LaneSwitch.NO_CHANGE);
 			}
 		}
 	}
@@ -1005,7 +1011,14 @@ public class Car {
 	}
 	
 	public int getSpeedLimit() {
-		return this.currentLane.getSpeedLimit();
+		if(!isUsingDriverArchetype)
+		{
+			return this.currentLane.getSpeedLimit();
+		}
+		else
+		{
+			return (int)(this.currentLane.getSpeedLimit() * (1+(driver.getArchetype().aggression / 2f - driver.getArchetype().fear / 4f)));
+		}
 	}
 	
 	
@@ -1057,7 +1070,14 @@ public class Car {
 // GET & SET area
 
 	public int getAcceleration() {
-		return acceleration;
+		if(!isUsingDriverArchetype)
+		{
+			return acceleration;
+		}
+		else
+		{
+			return acceleration + accelerationModifier;
+		}
 	}
 
 	public void setAcceleration(int acceleration) {
@@ -1186,8 +1206,43 @@ public class Car {
         return switchToLane;
     }
 
-	public void setLaneSwitch(LaneSwitch lane){
-		this.switchToLane = lane;
+	public void setLaneSwitch(LaneSwitch laneSwitch){
+		this.switchToLane = laneSwitch;
+		
+		if(isUsingDriverArchetype && (laneSwitch == LaneSwitch.WANTS_RIGHT || laneSwitch == LaneSwitch.WANTS_LEFT))
+		{
+			InformPreviousCarAboutLaneChanging(laneSwitch);
+		}
+	}
+
+	private void InformPreviousCarAboutLaneChanging(LaneSwitch laneSwitch) {
+		LaneRealExt lane = getLaneFromDirection(laneSwitch);
+
+		if(lane == null)
+		{
+			return;
+		}
+
+		Car behindCar = lane.getBehindCar(this.pos - 1);
+		if(behindCar != null)
+		{
+			behindCar.SeeTurnSignal(this);
+			Car carBehindBehindCar = lane.getBehindCar(behindCar);
+
+			if(carBehindBehindCar != null)
+			{
+				carBehindBehindCar.SeeTurnSignal(this);
+			}
+		}
+	}
+
+	private void SeeTurnSignal(Car car) {
+		if(this.pos - car.pos > 60 || this.velocity <= car.getVelocity()) // if we are far away from this care, or when we are slower
+		{
+			return;
+		}
+
+		setAccelerationModifier((int)Math.ceil((this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f));
 	}
 
 	public LaneRealExt getCurrentLane() {
@@ -1202,4 +1257,15 @@ public class Car {
 		return obstacleVisibility;
 	}
 
+	public int getAccelerationModifier() {
+		return accelerationModifier;
+	}
+
+	public void setAccelerationModifier(int accelerationModifier) {
+		this.accelerationModifier = accelerationModifier;
+		if(accelerationModifier != 1)
+		{
+			this.accelerationModifierTurnCounter = 2;
+		}
+	}
 }
