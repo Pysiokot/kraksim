@@ -830,11 +830,12 @@ public class Car {
 			this.changeLanes(this.getLaneFromLaneSwitchState());
 			nextCar = this.currentLane.getFrontCar(this);	// nextCar changed
 			this.velocity = Math.max(this.velocity-1, 0);	// Reduce by 1
+			informPreviousCarsAboutLaneChanged();
 			this.switchLaneUrgency = 0;
 			
 		} else if(this.switchToLane == LaneSwitch.WANTS_LEFT || this.switchToLane == LaneSwitch.WANTS_RIGHT) {
 			// cancel acceleration
-			this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));	// by default reduce speed to 1 if looking for a lane switch	
+//			this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));	// by default reduce speed to 1 if looking for a lane switch
 			this.switchLaneUrgency++;
 		}
 
@@ -1211,14 +1212,30 @@ public class Car {
 		
 		if(isUsingDriverArchetype && (laneSwitch == LaneSwitch.WANTS_RIGHT || laneSwitch == LaneSwitch.WANTS_LEFT))
 		{
-			InformPreviousCarAboutLaneChanging(laneSwitch);
+			informPreviousCarAboutLaneChanging(laneSwitch, 4);
 		}
 	}
 
-	private void InformPreviousCarAboutLaneChanging(LaneSwitch laneSwitch) {
-		LaneRealExt lane = getLaneFromDirection(laneSwitch);
+	private void informPreviousCarsAboutLaneChanged()
+	{
+		Car behindCar = currentLane.getBehindCar(this.pos - 1);
 
-		if(lane == null)
+		if(behindCar != null)
+		{
+			behindCar.seeTurnSignal(this, false);
+			Car carBehindPrevCar = currentLane.getBehindCar(behindCar);
+
+			if(carBehindPrevCar != null)
+			{
+				carBehindPrevCar.seeTurnSignal(this, false);
+			}
+		}
+	}
+
+	private void informPreviousCarAboutLaneChanging(LaneSwitch laneSwitch, int carsToInform) {
+		LaneRealExt lane = laneSwitch != LaneSwitch.NO_CHANGE ? getLaneFromDirection(laneSwitch) : currentLane;
+
+		if(lane == null || carsToInform == 0)
 		{
 			return;
 		}
@@ -1226,23 +1243,30 @@ public class Car {
 		Car behindCar = lane.getBehindCar(this.pos - 1);
 		if(behindCar != null)
 		{
-			behindCar.SeeTurnSignal(this);
-			Car carBehindBehindCar = lane.getBehindCar(behindCar);
-
-			if(carBehindBehindCar != null)
+			if(behindCar.seeTurnSignal(this, true))
 			{
-				carBehindBehindCar.SeeTurnSignal(this);
+				behindCar.informPreviousCarAboutLaneChanging(LaneSwitch.NO_CHANGE, carsToInform - 1);
 			}
 		}
 	}
 
-	private void SeeTurnSignal(Car car) {
-		if(this.pos - car.pos > 60 || this.velocity <= car.getVelocity()) // if we are far away from this care, or when we are slower
+	private boolean seeTurnSignal(Car car, boolean isSomeoneTurning) {
+		if(isSomeoneTurning)
 		{
-			return;
-		}
+			if(this.pos - car.pos > 60 || this.velocity <= car.getVelocity()) // if we are far away from this care, or when we are slower
+			{
+				setAccelerationModifier(1);
+				return false;
+			}
 
-		setAccelerationModifier((int)Math.ceil((this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f));
+			setAccelerationModifier((int)Math.ceil((this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f));
+			return true;
+		}
+		else
+		{
+			setAccelerationModifier(1);
+			return false;
+		}
 	}
 
 	public LaneRealExt getCurrentLane() {
