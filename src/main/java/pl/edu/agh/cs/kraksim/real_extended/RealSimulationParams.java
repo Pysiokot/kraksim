@@ -6,7 +6,7 @@ import java.util.Random;
 
 public final class RealSimulationParams {
 	public static final float CELL_LENGTH_IN_METERS = 7.5f;
-	public static final float TURN_DURATION_IN_SECONDS = 10.0f;
+	public static final float TURN_DURATION_IN_SECONDS = 1.0f;
 	public static final int DEFAULT_MAX_VELOCITY = 20;
 	public static final float DEFAULT_DECEL_PROB = 0.2f;
 	public static final int DEFAULT_PRIOR_LANE_TIME_HEADWAY = 4;
@@ -79,7 +79,7 @@ public final class RealSimulationParams {
 	}
 
 	public static float convertToMeterPS(float speed) {
-		return speed * CELL_LENGTH_IN_METERS / TURN_DURATION_IN_SECONDS;
+		return speed * CELL_LENGTH_IN_METERS / (TURN_DURATION_IN_SECONDS * 10f);
 	}
 
 	public static float getRedLevel() {
