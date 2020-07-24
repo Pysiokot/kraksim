@@ -218,7 +218,7 @@ public class KraksimConfigurator {
         sessionProperties.setProperty("algorithm", "sotl");
         sessionProperties.setProperty("carMoveModel", "nagel:decProb=0.2");
         sessionProperties.setProperty("yellowTransition", "3");
-        sessionProperties.setProperty("statOutFile", "output/statistics/stats.txt");
+        sessionProperties.setProperty("statOutFile", "output/logs/log.log");
         sessionProperties.setProperty("zone_awareness", "enabled");
 
         return  sessionProperties;

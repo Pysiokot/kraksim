@@ -113,7 +113,7 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 		                break;
 		            }
 		        }
-		
+
 		visualizer = modules.setUpModules(core, evalProvider, physModuleCreator, this, params);
 		console.println("");
 
@@ -133,11 +133,11 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 				summaryStatWriter = new PrintWriter(
 						new BufferedOutputStream(new FileOutputStream(params
 								.getStatFileName()
-								+ ".sum")));
+								+ "_sum.txt")));
         linkStatWriter = new PrintWriter(
             new BufferedOutputStream(new FileOutputStream(params
                 .getStatFileName()
-                + ".link")));
+                + "_link.xml")));
         
 			} catch (FileNotFoundException e) {
 				error("Error: statistics file cannot be created -- "
@@ -390,8 +390,11 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 		turnNumber = turn;
 		
 		//do grafu
-		if(turn % SnaConfigurator.getSnaRefreshInterval() == 0){
-			refreshGraph();
+		if(params.isVisualization())
+		{
+			if(turn % SnaConfigurator.getSnaRefreshInterval() == 0){
+				refreshGraph();
+			}
 		}
 
 
