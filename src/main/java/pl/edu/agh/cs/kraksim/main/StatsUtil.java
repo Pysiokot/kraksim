@@ -135,7 +135,7 @@ public class StatsUtil {
 
 	public static void dumpLinkStats(final City city, final PrintWriter statWriter, LinkStat linkStat, LinkStat linkRidingStat) {
 
-
+		statWriter.println("<stats>");
 		for (Iterator<Link> i = city.linkIterator(); i.hasNext(); ) {
 			Link link = i.next();
 
@@ -152,11 +152,12 @@ public class StatsUtil {
 				int carCount = carCounts.get(j);
 				int begin = period * dumpLinkStatsInterval;
 				int end = (period + 1) * dumpLinkStatsInterval;
-				statWriter.print(String.format("\t<period begin='%d' end='%d' avg_velocity='%.4f' avg_riding_velocity='%.4f' carCount='%d'>\n", begin, end, avgVelocity, avgRidingVelocity, carCount));
+				statWriter.print(String.format("\t<period begin=\"%d\" end=\"%d\" avg_velocity=\"%.4f\" avg_riding_velocity=\"%.4f\" carCount=\"%d\"/>\n", begin, end, avgVelocity, avgRidingVelocity, carCount));
 				period++;
 			}
 			statWriter.print("</link>\n");
 		}
+		statWriter.println("</stats>");
 	}
 
 	/**
@@ -363,7 +364,7 @@ public class StatsUtil {
 			if (linkExt.getDriveCount() > 0) {
 				float v = linkExt.getAvgVelocity();
 				float vkph = RealSimulationParams.convertToKPH(v);
-				writer.printf("%6s %6s %6d %15.1f %15.1f % 15.2f %15.1f\n", link.getBeginning().getId(), link.getEnd().getId(), linkExt.getDriveCount(), linkExt.getAvgDuration(), linkExt.getStdDevDuration(), v, vkph);
+				writer.printf("%6s %6s %6d %15.1f %15.1f % 15.4f %15.1f\n", link.getBeginning().getId(), link.getEnd().getId(), linkExt.getDriveCount(), linkExt.getAvgDuration(), linkExt.getStdDevDuration(), v, vkph);
 			}
 		}
 	}
