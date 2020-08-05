@@ -7,12 +7,10 @@ import pl.edu.agh.cs.kraksim.core.visitors.ElementVisitor;
 import pl.edu.agh.cs.kraksim.core.visitors.VisitingException;
 import pl.edu.agh.cs.kraksim.parser.RoadInfo;
 import pl.edu.agh.cs.kraksim.real_extended.BlockedCellsInfo;
+import pl.edu.agh.cs.kraksim.real_extended.LaneRealExt;
 
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * City - an entry element to the city topology

@@ -53,9 +53,12 @@ public class Car {
 	protected int switchLaneUrgency = 0;	// number of turns car is in LaneSwitch.WANT_ ... -> reduces switch lane conditions
 
 	// 2020
-	private boolean isUsingDriverArchetype = true;
+	private boolean useArchetype;
 	private int accelerationModifier = 1; // preffered number from -2 to 2 - 1 is default
 	private int accelerationModifierTurnCounter = 0;
+	private float carBrokeProbability;
+	private int brokeCarStayDuration;
+	private boolean isCarBroke = false;
 
 	protected LaneSwitch switchToLane = LaneSwitch.NO_CHANGE;
 
@@ -66,6 +69,7 @@ public class Car {
 		// == reading TEST2013 configuration
 		//Properties prop = KraksimConfigurator.getPropertiesFromFile();
 		String test2013enabled = KraksimConfigurator.getProperty("TEST2013Enabled");
+		useArchetype = KraksimConfigurator.getProperty("useArchetype").trim().equals("true");
 		if (test2013enabled != null && test2013enabled.trim().equals("true")) {
 			isTEST2013Enabled = true;
 
@@ -104,7 +108,8 @@ public class Car {
 
 		obstacleVisibility = Integer.parseInt(KraksimConfigurator.getProperty("obstacleVisibility"));
 		setAcceleration(Integer.parseInt(KraksimConfigurator.getProperty("carAcceleration")));
-
+		carBrokeProbability = Float.parseFloat(KraksimConfigurator.getProperty("carBrokeProbability"));
+		brokeCarStayDuration = Integer.parseInt(KraksimConfigurator.getProperty("brokeCarStayDuration"));
 		LOGGER.trace("\n Driver= " + driver + "\n rerouting= " + rerouting);
 	}
 	
@@ -205,7 +210,7 @@ public class Car {
 		Action actionIntersection = this.getActionForNextIntersection();
 		int laneIntersectionAbs = actionIntersection.getSource().getAbsoluteNumber();
 
-		int dstToIntersection = isUsingDriverArchetype ? this.getCurrentLane().linkLength() - this.getPosition() - 1 : 10;
+		int dstToIntersection = useArchetype ? this.getCurrentLane().linkLength() - this.getPosition() - 1 : 10;
 
 		return (this.isGivenLaneGoodForNextIntersection(targetLane.getLane())
 				|| Math.abs(targetLane.getLane().getAbsoluteNumber() - laneIntersectionAbs) < Math.abs(this.currentLane.getLane().getAbsoluteNumber() - laneIntersectionAbs)
@@ -352,15 +357,13 @@ public class Car {
 	/** is distance to next car less than my speed  */
 	protected boolean isMyLaneBad(Car carInFront) {
 		int gapThisFront = 	carInFront != null ? carInFront.getPosition() - this.pos - 1 : this.currentLane.linkLength() - this.pos -1;
-		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
-
-		return gapThisFront <= this.velocity || carInFrontSlower;
+		boolean carInFrontIsObstacle = carInFront != null && carInFront.isObstacle();
+		return gapThisFront <= this.getFutureVelocity() || carInFrontIsObstacle;
 	}
 	
 	/** other lane better if it has more space to next car in front */
 	protected boolean isOtherLaneBetter(Car carInFront, Car otherCarFront, LaneRealExt otherLane) {
 		int gapThisFront = carInFront != null	? carInFront.getPosition() - this.pos - 1	: this.currentLane.linkLength() - this.pos - 1;
-		boolean carInFrontSlower = isCarInFrontSlower(carInFront);
 		int gapNeiFront = otherCarFront != null	? otherCarFront.getPosition() - this.pos - 1	: otherLane.linkLength() - this.pos - 1;
 		boolean obstacleClose = false;
 		for(Integer obstacleIndex : otherLane.getLane().getActiveBlockedCellsIndexList()) {
@@ -371,17 +374,17 @@ public class Car {
 				break;
 			}
 		}
-		return ((gapNeiFront-1) > gapThisFront && !obstacleClose) || carInFrontSlower;
+
+		boolean carInFrontIsObstacle = carInFront != null && carInFront.isObstacle();
+
+		return ((gapNeiFront-1) > gapThisFront && !obstacleClose) || carInFrontIsObstacle;
 	}
 
 	private boolean isCarInFrontSlower(Car carInFront) {
 		boolean isCarInFrontSlower = false;
-		if(isUsingDriverArchetype)
+		if(useArchetype)
 		{
-			if(driver.getArchetype().getAggression() > 0.7f)
-			{
-				isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 2 < this.getFutureVelocity();
-			}
+			isCarInFrontSlower = carInFront != null && carInFront.getVelocity() + 2 < this.getFutureVelocity();
 		}
 		return isCarInFrontSlower;
 	}
@@ -535,8 +538,6 @@ public class Car {
 		return id;
 	}
 
-
-
 	/**
 	 * Check if there is need to switch lanes (obstacle, emergency etc) <br>
 	 * If not check switchLaneAlgorithms on all neighbors lanes <br>
@@ -549,52 +550,52 @@ public class Car {
 		//	if car dont want to switch - check setSwitchToLaneStateForAlgorithm - maybe it will switch
 
 		int distanceToIntersection = this.currentLane.linkLength() - this.pos - 1;
-		if(distanceToIntersection > 200)
+		if(distanceToIntersection > cellsToIntersection)
 		{
 			this.switchLaneToRunOverCar(this.currentLane.getFrontCar(this));
 		}
 
 		// calculate distance to nearest obstacle, must be not more than obstacleVisibility param
-		int distanceToNextObstacle = Integer.MAX_VALUE;
-		for(Integer obstacleIndex : this.currentLane.getLane().getActiveBlockedCellsIndexList()) {
-			int dist = obstacleIndex - getPosition();	// [C] --> [o]
-			if(dist < 0) continue;
-			distanceToNextObstacle = Math.min(distanceToNextObstacle, dist);
-		}
+//		int distanceToNextObstacle = Integer.MAX_VALUE;
+//		for(Integer obstacleIndex : this.currentLane.getDynamicObstacles()) {
+//			int dist = obstacleIndex - getPosition();	// [C] --> [o]
+//			if(dist < 0) continue;
+//			distanceToNextObstacle = Math.min(distanceToNextObstacle, dist);
+//		}
 		
 		//	check for obstacles
-		if(distanceToNextObstacle <= obstacleVisibility) {
-			int desiredLaneNumber = getLaneNumberToBypassObstacle(distanceToNextObstacle);
-			//System.out.println("obstacle " + desiredLaneNumber);
-			if(desiredLaneNumber < currentLane.getLane().getAbsoluteNumber()){
-				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.LEFT)){
-					setLaneSwitch(LaneSwitch.LEFT);
-				}
-				else{
-					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
-						setLaneSwitch(LaneSwitch.WANTS_LEFT);
-					} else {
-						setLaneSwitch(LaneSwitch.NO_CHANGE);
-					}
-				}
-			}
-			else if(desiredLaneNumber > currentLane.getLane().getAbsoluteNumber()){
-				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.RIGHT)){
-					setLaneSwitch(LaneSwitch.RIGHT);
-				}
-				else{
-					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
-						setLaneSwitch(LaneSwitch.WANTS_RIGHT);
-					} else {
-						setLaneSwitch(LaneSwitch.NO_CHANGE);
-					}
-				}
-			}
-			else{
-				setLaneSwitch(LaneSwitch.NO_CHANGE);
-			}
-		}
-		else if (!isEmergency() && this.currentLane.getBehindCar(this) != null && this.currentLane.getBehindCar(this).isEmergency()) {
+//		if(distanceToNextObstacle <= obstacleVisibility) {
+//			int desiredLaneNumber = getLaneNumberToBypassObstacle(distanceToNextObstacle);
+//			//System.out.println("obstacle " + desiredLaneNumber);
+//			if(desiredLaneNumber < currentLane.getLane().getAbsoluteNumber()){
+//				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.LEFT)){
+//					setLaneSwitch(LaneSwitch.LEFT);
+//				}
+//				else{
+//					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
+//						setLaneSwitch(LaneSwitch.WANTS_LEFT);
+//					} else {
+//						setLaneSwitch(LaneSwitch.NO_CHANGE);
+//					}
+//				}
+//			}
+//			else if(desiredLaneNumber > currentLane.getLane().getAbsoluteNumber()){
+//				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.RIGHT)){
+//					setLaneSwitch(LaneSwitch.RIGHT);
+//				}
+//				else{
+//					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
+//						setLaneSwitch(LaneSwitch.WANTS_RIGHT);
+//					} else {
+//						setLaneSwitch(LaneSwitch.NO_CHANGE);
+//					}
+//				}
+//			}
+//			else{
+//				setLaneSwitch(LaneSwitch.NO_CHANGE);
+//			}
+//		}
+		if (!isEmergency() && this.currentLane.getBehindCar(this) != null && this.currentLane.getBehindCar(this).isEmergency()) {
 			if(this.getCurrentLane().hasRightNeighbor() && this.getCurrentLane().rightNeighbor().getLane().isMainLane()) {	
 				if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
 					setLaneSwitch(LaneSwitch.RIGHT);
@@ -663,14 +664,34 @@ public class Car {
 	void simulateTurn() {
 		LOGGER.trace("car simulation : " + this);
 		if(this.isObstacle()) {	// dont simulate obstacles
+
+			if (brokeCarStayDuration == 0)
+			{
+				this.isCarBroke = false;
+//				currentLane.removeObstacle(this.pos);
+			}
+			else
+			{
+				brokeCarStayDuration--;
+				return;
+			}
+
 			return;
 		}
 		if(!this.canMoveThisTurn()) {	// car already did this turn
 			return;
 		}
 
-		if(isUsingDriverArchetype)
+		if(useArchetype)
 		{
+			if (this.currentLane.getParams().getRandomGenerator().nextDouble() < this.carBrokeProbability)
+			{
+				this.isCarBroke = true;
+				this.brokeCarStayDuration = Integer.parseInt(KraksimConfigurator.getProperty("brokeCarStayDuration"));
+//				currentLane.addObstacle(this.pos);
+				return;
+			}
+
 			if(this.accelerationModifierTurnCounter != 0)
 			{
 				this.accelerationModifierTurnCounter--;
@@ -690,7 +711,7 @@ public class Car {
 		// Acceleration
 		int speedLimit = this.getSpeedLimit();
 
-		this.velocity = Math.min(speedLimit, this.velocity+this.getAcceleration());
+		this.velocity = Math.max(0, Math.min(speedLimit, this.velocity+this.getAcceleration()));
 		
 		// random decelerations, car model actions (Nagel-Schreckenberg multi-lane switch etc), sets switchToLane state 
 		handleCorrectModel(nextCar);
@@ -804,7 +825,7 @@ public class Car {
 	}
 
 	private void maybeDeccelerate(float chance) {
-		if(!isUsingDriverArchetype)
+		if(!useArchetype)
 		{
 			velocity--;
 			return;
@@ -835,7 +856,11 @@ public class Car {
 			
 		} else if(this.switchToLane == LaneSwitch.WANTS_LEFT || this.switchToLane == LaneSwitch.WANTS_RIGHT) {
 			// cancel acceleration
-//			this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));	// by default reduce speed to 1 if looking for a lane switch
+			this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));	// by default reduce speed to 1 if looking for a lane switch
+			if(useArchetype)
+			{
+				informPreviousCarAboutLaneChanging(this.switchToLane, 1); // inform about lane changing each turn
+			}
 			this.switchLaneUrgency++;
 		}
 
@@ -847,14 +872,17 @@ public class Car {
 
 			// randomizing line to stop between 0.5 * forceStopOnWrongLaneForIntersection and forceStopOnWrongLaneForIntersection to avoid situations
 			// when two cars stop on the wrong lanes in the same time and wait for moment to switch
-			int laneToStop = (int)Math.floor((double)Integer.parseInt(KraksimConfigurator.getProperty("forceStopOnWrongLaneForIntersection")) * ((this.currentLane.getParams().getRandomGenerator().nextFloat() / 2f) + 0.5f));
+			int laneToStop = (int)Math.floor((double)Integer.parseInt(KraksimConfigurator.getProperty("forceStopOnWrongLaneForIntersection")) * ((this.currentLane.getParams().getRandomGenerator().nextFloat() * 4f / 5f) + 0.2f));
 
 			if(!this.isThisLaneGoodForNextIntersection()
 					&& distaneToIntersection < lanesDifForCorrectForIntersection * laneToStop) {
-				this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 0));
+				this.setVelocity(Math.max(this.getVelocity()-this.getAcceleration(), 1));
 			}
+
+			this.switchLaneUrgency++;
 		}
 
+		// BRAKE, DECCELERATION 1 - 7 CELLS IN TURN - DEPENDS ON DISTANCE TO OBSTACLE
 		int freeCellsInFront;
 		if (nextCar != null) {
 			freeCellsInFront = nextCar.getPosition() - this.pos - 1;
@@ -915,7 +943,7 @@ public class Car {
 
 	private void switchLaneToRunOverCar(Car nextCar)
 	{
-		if(!isUsingDriverArchetype)
+		if(!useArchetype)
 		{
 			return;
 		}
@@ -1012,7 +1040,7 @@ public class Car {
 	}
 	
 	public int getSpeedLimit() {
-		if(!isUsingDriverArchetype)
+		if(!useArchetype)
 		{
 			return this.currentLane.getSpeedLimit();
 		}
@@ -1071,13 +1099,13 @@ public class Car {
 // GET & SET area
 
 	public int getAcceleration() {
-		if(!isUsingDriverArchetype)
+		if(!useArchetype)
 		{
 			return acceleration;
 		}
 		else
 		{
-			return acceleration + accelerationModifier;
+			return acceleration * accelerationModifier;
 		}
 	}
 
@@ -1123,7 +1151,7 @@ public class Car {
 	}
 	
 	public boolean isObstacle() {
-		return false;
+		return isCarBroke;
 	}
 	
 	public boolean isBraking() {
@@ -1209,26 +1237,21 @@ public class Car {
 
 	public void setLaneSwitch(LaneSwitch laneSwitch){
 		this.switchToLane = laneSwitch;
-		
-		if(isUsingDriverArchetype && (laneSwitch == LaneSwitch.WANTS_RIGHT || laneSwitch == LaneSwitch.WANTS_LEFT))
-		{
-			informPreviousCarAboutLaneChanging(laneSwitch, 4);
-		}
 	}
 
 	private void informPreviousCarsAboutLaneChanged()
+	{
+		informPreviousCarAboutLaneChanged(1);
+	}
+
+	private void informPreviousCarAboutLaneChanged(int carsCount)
 	{
 		Car behindCar = currentLane.getBehindCar(this.pos - 1);
 
 		if(behindCar != null)
 		{
 			behindCar.seeTurnSignal(this, false);
-			Car carBehindPrevCar = currentLane.getBehindCar(behindCar);
-
-			if(carBehindPrevCar != null)
-			{
-				carBehindPrevCar.seeTurnSignal(this, false);
-			}
+			behindCar.informPreviousCarAboutLaneChanged(carsCount - 1);
 		}
 	}
 
@@ -1253,13 +1276,39 @@ public class Car {
 	private boolean seeTurnSignal(Car car, boolean isSomeoneTurning) {
 		if(isSomeoneTurning)
 		{
-			if(this.pos - car.pos > 60 || this.velocity <= car.getVelocity()) // if we are far away from this care, or when we are slower
+			if(car.pos - this.pos > 90) // if we are far away from this car
 			{
 				setAccelerationModifier(1);
 				return false;
 			}
+			float accelerationModifier = 0f;
 
-			setAccelerationModifier((int)Math.ceil((this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f));
+			int laneLength = currentLane.linkLength() - this.pos - 1;
+			if(laneLength < 90)
+			{
+				if(this.pos - car.pos < 20)
+				{
+					accelerationModifier = 4f;
+				}
+				else
+				{
+					accelerationModifier = (int)-Math.floor(1f - ((car.pos - this.pos) / 70f));
+				}
+			}
+			else
+			{
+				accelerationModifier = (int)Math.ceil(this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f;
+				accelerationModifier = accelerationModifier > 0 ? accelerationModifier : accelerationModifier - 1;
+			}
+
+			if(this.velocity > 0)
+			{
+				setAccelerationModifier((int)accelerationModifier);
+			}
+			else
+			{
+				setAccelerationModifier(1);
+			}
 			return true;
 		}
 		else

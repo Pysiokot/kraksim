@@ -139,7 +139,7 @@ public class StatsUtil {
 		for (Iterator<Link> i = city.linkIterator(); i.hasNext(); ) {
 			Link link = i.next();
 
-			statWriter.print(String.format("<link from='%s' to='%s'>\n", link.getBeginning().getId(), link.getEnd().getId()));
+			statWriter.print(String.format("<link from=\"%s\" to=\"%s\">\n", link.getBeginning().getId(), link.getEnd().getId()));
 			List<Double> avgVelocities = linkStat.getAvgVelocitiesList(link);
 			List<Double> avgRidingVelocities = linkRidingStat.getAvgVelocitiesList(link);
 			List<Integer> carCounts = linkStat.getCarCountList(link);

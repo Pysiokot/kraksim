@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<!--
+czas trwania schematu: 12h = 3600
+
+pomiędzy każdą parą węzłów generowane jest 200 samochodów
+z rozkładem jednostajnym
+-->
+<traffic>
+
+  <scheme count="200">
+    <gateway id="Wroad">
+      <uniform a="0" b="4000"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="600">
+    <gateway id="Wroad">
+      <uniform a="4000" b="8000"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Wroad">
+      <uniform a="8000" b="13000"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Nroad">
+      <uniform a="0" b="4000"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="600">
+    <gateway id="Nroad">
+      <uniform a="4000" b="8000"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Nroad">
+      <uniform a="8000" b="13000"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Sroad">
+      <uniform a="0" b="4000"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="600">
+    <gateway id="Sroad">
+      <uniform a="4000" b="8000"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Sroad">
+      <uniform a="8000" b="13000"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Nroad">
+      <uniform a="0" b="4000"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="600">
+    <gateway id="Nroad">
+      <uniform a="4000" b="8000"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Nroad">
+      <uniform a="8000" b="13000"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Wroad">
+      <uniform a="0" b="4000"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="600">
+    <gateway id="Wroad">
+      <uniform a="4000" b="8000"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Wroad">
+      <uniform a="8000" b="13000"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Sroad">
+      <uniform a="0" b="4000"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="600">
+    <gateway id="Sroad">
+      <uniform a="4000" b="8000"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="200">
+    <gateway id="Sroad">
+      <uniform a="8000" b="13000"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <!-- <scheme count="100">
+    <gateway id="Wroad">
+      <uniform a="0" b="3600"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme> -->
+
+</traffic>

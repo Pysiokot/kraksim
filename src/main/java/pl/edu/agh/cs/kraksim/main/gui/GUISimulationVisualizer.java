@@ -134,7 +134,7 @@ public class GUISimulationVisualizer implements SimulationVisualizer {
 			}
 		});
 		ctrllPane.add(wrap("turn delay", turnDelaySlider));
-		turnDelay = 25;
+		turnDelay =25;
 
 		return ctrllPane;
 	}

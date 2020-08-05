@@ -21,13 +21,14 @@ public class KraksimRunner {
 	 * @param args may contain config file path
 	 */
 	public static void main(String[] args) {
-//		for (int i = 0; i<5 ; i++) {
+		for (int i = 0; i<50 ; i++) {
 			if (args.length > 0) {
 				KraksimConfigurator.setConfigPath(args[0]);
 			}
 
 			final Properties props = KraksimConfigurator.getPropertiesFromFile();
 
+			props.setProperty("statOutFile", props.getProperty("statOutFile") + Integer.toString (i + 1));
 			// we assume that if there is no word about visualisation in config,
 			// then it is necessary...
 			// but if there is...
@@ -93,6 +94,6 @@ public class KraksimRunner {
 					LOGGER.error("InterruptedException", e);
 				}
 			}
-//		}
+		}
 	}
 }
