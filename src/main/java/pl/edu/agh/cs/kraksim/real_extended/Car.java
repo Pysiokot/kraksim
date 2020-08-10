@@ -695,10 +695,11 @@ public class Car {
 			if(this.accelerationModifierTurnCounter != 0)
 			{
 				this.accelerationModifierTurnCounter--;
-			}
-			else
-			{
-				setAccelerationModifier(1);
+
+				if(this.accelerationModifierTurnCounter == 0)
+				{
+					setAccelerationModifier(1);
+				}
 			}
 		}
 
