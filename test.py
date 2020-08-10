@@ -2,7 +2,6 @@ from xml.dom import minidom as xd
 from os import listdir
 from os.path import isfile, join
 import os
-from alphabet import alphabet
 
 def getCalculatedResult(files_res, items_count):
     result = {}
@@ -24,12 +23,13 @@ def addNewResult(data_holder, key_name, data):
 
     data_holder[key_name] = curr_value
 
-N = 50
+N = 150
 
 dirname = os.path.dirname(os.path.abspath(__file__))
-mypath = os.path.join(dirname, 'in')
+mypath = os.path.join(dirname, 'output')
+mypath = os.path.join(mypath, 'results')
 
-onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+onlyfiles = [f for f in listdir(mypath) if (isfile(join(mypath, f)) and os.path.splitext(f)[1] == '.xml')]
 
 # print(listdir(mypath))
 
@@ -42,7 +42,7 @@ for onlyfile in onlyfiles:
 
     file_name_splited = onlyfile.split("_")
 
-    key_name = file_name_splited[0] + file_name_splited[1]
+    key_name = file_name_splited[0]
     
     if key_name not in files_results_sum:
 
@@ -90,7 +90,7 @@ result = getCalculatedResult(files_results_sum, N)
 
 f = open("result.csv", "w+")
 
-f.write("research_id,average_vel_W_X,average_riding_vel_W_X,average_vel_S_X,average_riding_vel_S_X,average_vel_N_X,average_riding_vel_N_X")
+f.write("research_id;average_vel_W_X;average_riding_vel_W_X;average_vel_S_X;average_riding_vel_S_X;average_vel_N_X;average_riding_vel_N_X")
 f.write("\n")
 
 for key, val in result.items():
@@ -99,12 +99,12 @@ for key, val in result.items():
 
     for value in val:
         (x, y) = value
-        val_str += str(x)
-        val_str += ","
-        val_str += str(y)
-        val_str += ","
+        val_str += str(x).replace('.',',')
+        val_str += ";"
+        val_str += str(y).replace('.',',')
+        val_str += ";"
 
-    f.write(key + "," + val_str)
+    f.write(key + ";" + val_str)
     f.write("\n")
 
     # print(result)
