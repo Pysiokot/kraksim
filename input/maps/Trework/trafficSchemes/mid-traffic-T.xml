@@ -7,42 +7,42 @@ z rozkładem jednostajnym
 -->
 <traffic>
 
-  <scheme count="750">
+  <scheme count="1900">
     <gateway id="Wroad">
       <uniform a="0" b="10800"/>
     </gateway>
     <gateway id="Nroad"/>
   </scheme>
 
-  <scheme count="750">
+  <scheme count="1900">
     <gateway id="Nroad">
       <uniform a="0" b="10800"/>
     </gateway>
     <gateway id="Wroad"/>
   </scheme>
 
-  <scheme count="750">
+  <scheme count="1900">
     <gateway id="Sroad">
       <uniform a="0" b="10800"/>
     </gateway>
     <gateway id="Wroad"/>
   </scheme>
 
-  <scheme count="750">
+  <scheme count="1900">
     <gateway id="Sroad">
       <uniform a="0" b="10800"/>
     </gateway>
     <gateway id="Nroad"/>
   </scheme>
 
-  <scheme count="750">
+  <scheme count="1900">
     <gateway id="Nroad">
       <uniform a="0" b="10800"/>
     </gateway>
     <gateway id="Sroad"/>
   </scheme>
 
-  <scheme count="750">
+  <scheme count="1900">
     <gateway id="Wroad">
       <uniform a="0" b="10800"/>
     </gateway>
