@@ -1,23 +1,31 @@
 package pl.edu.agh.cs.kraksim;
 
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import pl.edu.agh.cs.kraksim.main.Simulation;
 import pl.edu.agh.cs.kraksim.main.gui.GUISimulationVisualizer;
 import pl.edu.agh.cs.kraksim.main.gui.MainVisualisationPanel;
 import pl.edu.agh.cs.kraksim.main.gui.SimulationVisualizer;
+import pl.edu.agh.cs.kraksim.ministat.CityMiniStatExt;
+import pl.edu.agh.cs.kraksim.real_extended.Car;
 import pl.edu.agh.cs.kraksim.sna.centrality.KmeansClustering;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.Properties;
 
 public class KraksimRunner {
 	public static final Logger LOGGER = Logger.getLogger(KraksimRunner.class);
+	public static final Logger LOGGER2 = Logger.getLogger(CityMiniStatExt.class);
 
-	private static final boolean testTries = false;
+	private static FileAppender appender;
+	private static final boolean testTries = true;
 
-	private static final String[] configFiles = new String[] {"low", "mid", "hig"};
+	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
+//	private static final String[] configFiles = new String[] {"loe"};
 	/**
 	 * Main
 	 *
@@ -47,6 +55,13 @@ public class KraksimRunner {
 					String statOutFileName = props.getProperty("statOutFile") + Integer.toString(i + 1);
 
 					statOutFileName = statOutFileName.replaceAll(startName, subName);
+
+//					try {
+//						appender = new FileAppender(new PatternLayout(), "output/results/" + subName + "_" + (i + 1) + ".log");
+//						LOGGER2.addAppender(appender);
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
 
 					props.setProperty("statOutFile", statOutFileName);
 					// we assume that if there is no word about visualisation in config,
@@ -113,6 +128,8 @@ public class KraksimRunner {
 						} catch (InterruptedException e) {
 							LOGGER.error("InterruptedException", e);
 						}
+
+//						LOGGER2.removeAppender(appender);
 					}
 				}
 			}

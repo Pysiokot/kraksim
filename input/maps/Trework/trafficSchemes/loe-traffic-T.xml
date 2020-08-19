@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!--
+czas trwania schematu: 1h = 3600
+
+-->
+<traffic>
+
+  <scheme count="1000">
+    <gateway id="Wroad">
+      <uniform a="0" b="10800"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="1000">
+    <gateway id="Nroad">
+      <uniform a="0" b="10800"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="1000">
+    <gateway id="Sroad">
+      <uniform a="0" b="10800"/>
+    </gateway>
+    <gateway id="Wroad"/>
+  </scheme>
+
+  <scheme count="1000">
+    <gateway id="Sroad">
+      <uniform a="0" b="10800"/>
+    </gateway>
+    <gateway id="Nroad"/>
+  </scheme>
+
+  <scheme count="1000">
+    <gateway id="Nroad">
+      <uniform a="0" b="10800"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <scheme count="1000">
+    <gateway id="Wroad">
+      <uniform a="0" b="10800"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme>
+
+  <!-- <scheme count="100">
+    <gateway id="Wroad">
+      <uniform a="0" b="3600"/>
+    </gateway>
+    <gateway id="Sroad"/>
+  </scheme> -->
+
+</traffic>
