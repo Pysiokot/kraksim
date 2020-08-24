@@ -281,7 +281,7 @@ public class Car {
 		if(this.currentLane.hasLeftNeighbor()
 			&& !(this.currentLane.leftNeighbor().getLane().isMainLane() ^ this.currentLane.getLane().isMainLane())	//nXOR, they must be the same type
 			&& (this.currentLane.leftNeighbor().getLane().isMainLane() || this.isGivenLaneGoodForNextIntersection(this.currentLane.leftNeighbor().getLane()))
-			&& (this.switchLaneMethod == SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM || this.isLaneBetterForNextIntersection(this.currentLane.leftNeighbor()))
+			&& (this.switchLaneMethod == SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM || this.isLaneBetterForNextIntersection(this.currentLane.leftNeighbor()) || isMyLaneBad(currentLane.getFrontCar(this)))
 			) {
 				// switch to left if left lane exists, is a main lane and left lane is correct for next interaction if it needs to be (distance based probability)
 				switchLaneForceLeft = this.switchLaneAlgorithm(this.currentLane.leftNeighbor());	
@@ -290,7 +290,7 @@ public class Car {
 		if(this.currentLane.hasRightNeighbor()
 			&& !(this.currentLane.rightNeighbor().getLane().isMainLane() ^ this.currentLane.getLane().isMainLane())	//nXOR, they must be the same type
 			&& (this.currentLane.rightNeighbor().getLane().isMainLane() || this.isGivenLaneGoodForNextIntersection(this.currentLane.rightNeighbor().getLane()))
-			&& (this.switchLaneMethod == SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM || this.isLaneBetterForNextIntersection(this.currentLane.rightNeighbor()))
+			&& (this.switchLaneMethod == SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM || this.isLaneBetterForNextIntersection(this.currentLane.rightNeighbor()) || isMyLaneBad(currentLane.getFrontCar(this)))
 			) {
 				// switch to left if right lane exists, is a main lane and right lane is correct for next interaction if it needs to be (distance based probability)
 				switchLaneForceRight = this.switchLaneAlgorithm(this.currentLane.rightNeighbor());	
@@ -543,81 +543,86 @@ public class Car {
 	 * If not check switchLaneAlgorithms on all neighbors lanes <br>
 	 * Action for obstacle or emergency have priority
 	 * @return correct switch lane state
+	 * 	// MOD
 	 */
+
+
 	void switchLanesState(){
 		//	if car is not emergency or car behind me is emergency - go right
 		// 	if obstacle in front - try to switch
 		//	if car dont want to switch - check setSwitchToLaneStateForAlgorithm - maybe it will switch
 
-		int distanceToIntersection = this.currentLane.linkLength() - this.pos - 1;
-		if(distanceToIntersection > cellsToIntersection)
-		{
-			this.switchLaneToRunOverCar(this.currentLane.getFrontCar(this));
-		}
+		Car frontCar = this.currentLane.getFrontCar(this);
 
+		int distanceToIntersection = this.currentLane.linkLength() - this.pos - 1;
+		if(distanceToIntersection > cellsToIntersection && (frontCar != null && !frontCar.isObstacle()) && this.switchLaneToRunOverCar(frontCar))
+		{
+		}
+		else if(frontCar != null){
+			int distanceToNextObstacle = Integer.MAX_VALUE;
+			for(Integer obstacleIndex : this.currentLane.getLane().getActiveBlockedCellsIndexList()) {
+				int dist = obstacleIndex - getPosition();	// [C] --> [o]
+				if(dist < 0) continue;
+				distanceToNextObstacle = Math.min(distanceToNextObstacle, dist);
+			}
+			//	check for obstacles
+			if(distanceToNextObstacle <= obstacleVisibility) {
+				int desiredLaneNumber = getLaneNumberToBypassObstacle(distanceToNextObstacle);
+				//System.out.println("obstacle " + desiredLaneNumber);
+				if(desiredLaneNumber < currentLane.getLane().getAbsoluteNumber()){
+					if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.LEFT)){
+						setLaneSwitch(LaneSwitch.LEFT);
+					}
+					else{
+						if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
+							setLaneSwitch(LaneSwitch.WANTS_LEFT);
+						} else {
+							setLaneSwitch(LaneSwitch.NO_CHANGE);
+						}
+					}
+				}
+				else if(desiredLaneNumber > currentLane.getLane().getAbsoluteNumber()){
+					if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.RIGHT)){
+						setLaneSwitch(LaneSwitch.RIGHT);
+					}
+					else{
+						if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
+							setLaneSwitch(LaneSwitch.WANTS_RIGHT);
+						} else {
+							setLaneSwitch(LaneSwitch.NO_CHANGE);
+						}
+					}
+				}
+				else{
+					setLaneSwitch(LaneSwitch.NO_CHANGE);
+				}
+			}
+		}
 		// calculate distance to nearest obstacle, must be not more than obstacleVisibility param
-//		int distanceToNextObstacle = Integer.MAX_VALUE;
-//		for(Integer obstacleIndex : this.currentLane.getDynamicObstacles()) {
-//			int dist = obstacleIndex - getPosition();	// [C] --> [o]
-//			if(dist < 0) continue;
-//			distanceToNextObstacle = Math.min(distanceToNextObstacle, dist);
-//		}
-		
-		//	check for obstacles
-//		if(distanceToNextObstacle <= obstacleVisibility) {
-//			int desiredLaneNumber = getLaneNumberToBypassObstacle(distanceToNextObstacle);
-//			//System.out.println("obstacle " + desiredLaneNumber);
-//			if(desiredLaneNumber < currentLane.getLane().getAbsoluteNumber()){
-//				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.LEFT)){
-//					setLaneSwitch(LaneSwitch.LEFT);
-//				}
-//				else{
-//					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
-//						setLaneSwitch(LaneSwitch.WANTS_LEFT);
-//					} else {
-//						setLaneSwitch(LaneSwitch.NO_CHANGE);
-//					}
-//				}
-//			}
-//			else if(desiredLaneNumber > currentLane.getLane().getAbsoluteNumber()){
-//				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.RIGHT)){
-//					setLaneSwitch(LaneSwitch.RIGHT);
-//				}
-//				else{
-//					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
-//						setLaneSwitch(LaneSwitch.WANTS_RIGHT);
-//					} else {
-//						setLaneSwitch(LaneSwitch.NO_CHANGE);
-//					}
-//				}
-//			}
-//			else{
-//				setLaneSwitch(LaneSwitch.NO_CHANGE);
-//			}
-//		}
-		if (!isEmergency() && this.currentLane.getBehindCar(this) != null && this.currentLane.getBehindCar(this).isEmergency()) {
-			if(this.getCurrentLane().hasRightNeighbor() && this.getCurrentLane().rightNeighbor().getLane().isMainLane()) {	
+
+		else if (!isEmergency() && this.currentLane.getBehindCar(this) != null && this.currentLane.getBehindCar(this).isEmergency()) {
+			if(this.getCurrentLane().hasRightNeighbor() && this.getCurrentLane().rightNeighbor().getLane().isMainLane()) {
 				if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
 					setLaneSwitch(LaneSwitch.RIGHT);
 				} else {
 					setLaneSwitch(LaneSwitch.WANTS_RIGHT);
-				} 
+				}
 			}
-		} 
+		}
 		// if car wanted to switch lanes in previous turn, check if its possible now
 		else if(this.switchToLane == LaneSwitch.WANTS_LEFT) {
 			if(checkIfCanSwitchTo(LaneSwitch.LEFT)) {
 				setLaneSwitch(LaneSwitch.LEFT);
 			}
-			
-		} 
+
+		}
 		else if(this.switchToLane == LaneSwitch.WANTS_RIGHT) {
 			if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
 				setLaneSwitch(LaneSwitch.RIGHT);
 			}
-		} 
-		else {	
-			
+		}
+		else {
+
 			// this part has to set new switchToLane state, it has 2 available algorithms, for intersection and based on local traffic
 			this.switchLaneMethodRandom = this.currentLane.getParams().getRandomGenerator().nextDouble();
 			if(this.getActionForNextIntersection() != null) {
@@ -631,7 +636,7 @@ public class Car {
 			} else {
 				this.switchLaneMethod = SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM;
 			}
-			
+
 			// we know what algorithm to use now
 			if(this.switchLaneMethod == SwitchLaneMethod.INTERSECTION_LANE) {
 				if(this.isThisLaneGoodForNextIntersection()) {
@@ -646,14 +651,120 @@ public class Car {
 				this.setSwitchToLaneStateForAlgorithm();	// behaves differently based on switchLaneMethod
 			}
 		}
-		
+
 		// if u want to switch to lane which does not exists, u dont want to switch lanes
 		if(this.getLaneFromLaneSwitchState() == null) {
 			setLaneSwitch(LaneSwitch.NO_CHANGE);
 		}
-		
+
 	}
-	
+
+
+// BASE
+//	void switchLanesState(){
+//		//	if car is not emergency or car behind me is emergency - go right
+//		// 	if obstacle in front - try to switch
+//		//	if car dont want to switch - check setSwitchToLaneStateForAlgorithm - maybe it will switch
+//
+//		// calculate distance to nearest obstacle, must be not more than obstacleVisibility param
+//		int distanceToNextObstacle = Integer.MAX_VALUE;
+//		for(Integer obstacleIndex : this.currentLane.getLane().getActiveBlockedCellsIndexList()) {
+//			int dist = obstacleIndex - getPosition();	// [C] --> [o]
+//			if(dist < 0) continue;
+//			distanceToNextObstacle = Math.min(distanceToNextObstacle, dist);
+//		}
+//
+//		//	check for obstacles
+//		if(distanceToNextObstacle <= obstacleVisibility) {
+//			int desiredLaneNumber = getLaneNumberToBypassObstacle(distanceToNextObstacle);
+//			//System.out.println("obstacle " + desiredLaneNumber);
+//			if(desiredLaneNumber < currentLane.getLane().getAbsoluteNumber()){
+//				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.LEFT)){
+//					this.switchToLane = LaneSwitch.LEFT;
+//				}
+//				else{
+//					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
+//						this.switchToLane = LaneSwitch.WANTS_LEFT;
+//					} else {
+//						this.switchToLane = LaneSwitch.NO_CHANGE;
+//					}
+//				}
+//			}
+//			else if(desiredLaneNumber > currentLane.getLane().getAbsoluteNumber()){
+//				if(checkIfCanSwitchToIgnoreObstacles(LaneSwitch.RIGHT)){
+//					this.switchToLane = LaneSwitch.RIGHT;
+//				}
+//				else{
+//					if(distanceToNextObstacle < this.currentLane.getSpeedLimit()) {
+//						this.switchToLane = LaneSwitch.WANTS_RIGHT;
+//					} else {
+//						this.switchToLane = LaneSwitch.NO_CHANGE;
+//					}
+//				}
+//			}
+//			else{
+//				this.switchToLane = LaneSwitch.NO_CHANGE;
+//			}
+//		}
+//		else if (!isEmergency() && this.currentLane.getBehindCar(this) != null && this.currentLane.getBehindCar(this).isEmergency()) {
+//			if(this.getCurrentLane().hasRightNeighbor() && this.getCurrentLane().rightNeighbor().getLane().isMainLane()) {
+//				if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
+//					this.switchToLane = LaneSwitch.RIGHT;
+//				} else {
+//					this.switchToLane = LaneSwitch.WANTS_RIGHT;
+//				}
+//			}
+//		}
+//		// if car wanted to switch lanes in previous turn, check if its possible now
+//		else if(this.switchToLane == LaneSwitch.WANTS_LEFT) {
+//			if(checkIfCanSwitchTo(LaneSwitch.LEFT)) {
+//				this.switchToLane = LaneSwitch.LEFT;
+//			}
+//
+//		}
+//		else if(this.switchToLane == LaneSwitch.WANTS_RIGHT) {
+//			if(checkIfCanSwitchTo(LaneSwitch.RIGHT)) {
+//				this.switchToLane = LaneSwitch.RIGHT;
+//			}
+//		}
+//		else {
+//
+//			// this part has to set new switchToLane state, it has 2 available algorithms, for intersection and based on local traffic
+//			this.switchLaneMethodRandom = this.currentLane.getParams().getRandomGenerator().nextDouble();
+//			if(this.getActionForNextIntersection() != null) {
+//				// number of lanes to good lane for next intersection
+//				int intersectionSwitchMultiplier =  Math.max(0, Math.abs(this.currentLane.getLane().getAbsoluteNumber() - this.getActionForNextIntersection().getSource().getAbsoluteNumber()));
+//				if(this.switchLaneMethodRandom * intersectionSwitchMultiplier < this.switchLaneActionProbability()) {
+//					this.switchLaneMethod = SwitchLaneMethod.INTERSECTION_LANE;
+//				} else {
+//					this.switchLaneMethod = SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM;
+//				}
+//			} else {
+//				this.switchLaneMethod = SwitchLaneMethod.LOCAL_TRAFFIC_ALGORITHM;
+//			}
+//
+//			// we know what algorithm to use now
+//			if(this.switchLaneMethod == SwitchLaneMethod.INTERSECTION_LANE) {
+//				if(this.isThisLaneGoodForNextIntersection()) {
+//					// if we are currently on good lane car can switch lanes to locally better if target lane is also good got next intersection
+//					this.setSwitchToLaneStateForAlgorithm(); // behaves differently based on switchLaneMethod
+//				} else {
+//					// moves car closer to good lane
+//					this.setSwitchToLaneStateForIntersection();
+//				}
+//			} else {
+//				// dont care about next intersection, just pick locally better lane
+//				this.setSwitchToLaneStateForAlgorithm();	// behaves differently based on switchLaneMethod
+//			}
+//		}
+//
+//		// if u want to switch to lane which does not exists, u dont want to switch lanes
+//		if(this.getLaneFromLaneSwitchState() == null) {
+//			this.switchToLane = LaneSwitch.NO_CHANGE;
+//		}
+//
+//	}
+
 //	[end] Lane Changes Methods
 /////////////////////////////////////////////////////////////////
 	
@@ -688,6 +799,7 @@ public class Car {
 			{
 				this.isCarBroke = true;
 				this.brokeCarStayDuration = Integer.parseInt(KraksimConfigurator.getProperty("brokeCarStayDuration"));
+
 //				currentLane.addObstacle(this.pos);
 				return;
 			}
@@ -718,10 +830,10 @@ public class Car {
 		handleCorrectModel(nextCar);
 
 		// if we are far from intersection we're trying to run over slower cars
-		if(this.currentLane.linkLength() - this.pos - 1 > cellsToIntersection)
-		{
-			switchLaneToRunOverCar(nextCar);
-		}
+//		if(this.currentLane.linkLength() - this.pos - 1 > cellsToIntersection)
+//		{
+//			switchLaneToRunOverCar(nextCar);
+//		}
 
 		driveCar(nextCar);
 		
@@ -942,11 +1054,11 @@ public class Car {
 		this.setVelocity(distanceTraveled);
 	}
 
-	private void switchLaneToRunOverCar(Car nextCar)
+	private boolean switchLaneToRunOverCar(Car nextCar)
 	{
-		if(!useArchetype)
+		if(!useArchetype || (nextCar.getPosition() - this.getPosition() - 1 < 30))
 		{
-			return;
+			return false;
 		}
 
 		double runOverPropability = 0f;
@@ -976,7 +1088,10 @@ public class Car {
 			{
 				setLaneSwitch(LaneSwitch.NO_CHANGE);
 			}
+
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -1277,6 +1392,11 @@ public class Car {
 	private boolean seeTurnSignal(Car car, boolean isSomeoneTurning) {
 		if(isSomeoneTurning)
 		{
+			if(car.isObstacle())
+			{
+				return false;
+			}
+
 			if(car.pos - this.pos > 90) // if we are far away from this car
 			{
 				setAccelerationModifier(1);
@@ -1296,9 +1416,8 @@ public class Car {
 					accelerationModifier = (int)-Math.floor(1f - ((car.pos - this.pos) / 70f));
 				}
 			}
-			else
-			{
-				accelerationModifier = (int)Math.ceil(this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f;
+			else if(this.driver != null) // TAK TO JEST SMIESZNE, DOPOKI SIE NIE ZOBACZY, ZE KTOS TWORZAC PRZESZKODY NA DRODZE POSTANOWIL PODZIEDZICZYC PO SAMOCHODZIE XDDDDDDDD
+			{ 	accelerationModifier = (int)Math.ceil(this.driver.getArchetype().getAggression() - this.driver.getArchetype().getFear()) * 2f;
 				accelerationModifier = accelerationModifier > 0 ? accelerationModifier : accelerationModifier - 1;
 			}
 
@@ -1340,6 +1459,22 @@ public class Car {
 		if(accelerationModifier != 1)
 		{
 			this.accelerationModifierTurnCounter = 2;
+		}
+	}
+
+	public void forceChangeCarsLaneWhenBlockingIt()
+	{
+		if(this.currentLane.hasRightNeighbor())
+		{
+			changeLanes(this.currentLane.rightNeighbor());
+		}
+		else if(this.currentLane.hasLeftNeighbor())
+		{
+			changeLanes(this.currentLane.leftNeighbor());
+		}
+		else
+		{
+			isCarBroke = true;
 		}
 	}
 }
