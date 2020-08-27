@@ -24,7 +24,7 @@
 			<uplink>
 				<main length="400" />
 				<left length="399" />
-<!--				<blocked laneNumber="0" cell="290" lastCell="360" turnStart="200" turnEnd="2000" />-->
+				<blocked laneNumber="0" cell="290" lastCell="390" turnStart="1500" turnEnd="7500" />
 			</uplink>
 			<downlink>
 				<main length="400" numberOfLanes="2"  />

@@ -25,7 +25,7 @@ public class KraksimRunner {
 	private static final boolean testTries = true;
 
 	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
-//	private static final String[] configFiles = new String[] {"loe"};
+//	private static final String[] configFiles = new String[] {"hig"};
 	/**
 	 * Main
 	 *
@@ -38,7 +38,7 @@ public class KraksimRunner {
 			String startName = configFiles[0];
 
 			for (String subName : configFiles){
-				for (int i = 0; i<150 ; i++) {
+				for (int i = 0; i<50 ; i++) {
 					if (args.length > 0) {
 						KraksimConfigurator.setConfigPath(args[0]);
 					}
