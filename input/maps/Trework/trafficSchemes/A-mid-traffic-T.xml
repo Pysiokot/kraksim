@@ -7,14 +7,14 @@ z rozkładem jednostajnym
 -->
 <traffic>
 
-  <scheme count="3000">
+  <scheme count="4000">
     <gateway id="L">
       <uniform a="0" b="7200"/>
     </gateway>
     <gateway id="R"/>
   </scheme>
 
-  <scheme count="3000">
+  <scheme count="4000">
     <gateway id="R">
       <uniform a="0" b="7200"/>
     </gateway>
