@@ -13,6 +13,8 @@ import pl.edu.agh.cs.kraksim.iface.decision.DecisionIView;
 import pl.edu.agh.cs.kraksim.iface.eval.EvalIView;
 import pl.edu.agh.cs.kraksim.iface.mon.MonIView;
 import pl.edu.agh.cs.kraksim.iface.sim.SimIView;
+import pl.edu.agh.cs.kraksim.learning.QLearner;
+import pl.edu.agh.cs.kraksim.learning.WaitingCarsEnv;
 import pl.edu.agh.cs.kraksim.main.gui.GUISimulationVisualizer;
 import pl.edu.agh.cs.kraksim.main.gui.SimulationVisualizer;
 import pl.edu.agh.cs.kraksim.ministat.MiniStatEView;
@@ -26,7 +28,10 @@ import pl.edu.agh.cs.kraksim.sna.centrality.MeasureType;
 import pl.edu.agh.cs.kraksim.weka.WekaPredictionModule;
 import pl.edu.agh.cs.kraksim.weka.WekaPredictionModuleHandler;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SampleModuleConfiguration {
 	private static final Logger LOGGER = Logger.getLogger(SampleModuleConfiguration.class);
@@ -42,6 +47,8 @@ public class SampleModuleConfiguration {
 	private BlockIView blockView;
 
 	private Graph<Node, Link> graph;
+	private List<QLearner> QLearners;
+	private boolean useLearning = true;
 
 	/**
 	 * This is the place where all the binding between modules is done.
@@ -122,6 +129,22 @@ public class SampleModuleConfiguration {
 			} else {
 				visualizator = new ConsoleSimulationVisualizer(city, statView);
 			}
+
+			if(useLearning)
+			{
+				List<QLearner> tmpRlearners = new LinkedList<>();
+
+				for (Iterator<Link> linkIt = city.linkIterator(); linkIt.hasNext();) {
+					Link currLink = linkIt.next();
+					tmpRlearners.add(new QLearner(new WaitingCarsEnv(currLink, city,  statView, carInfoView, clock), currLink));
+				}
+
+				QLearners = tmpRlearners;
+			}
+			else
+			{
+				QLearners = Collections.emptyList();
+			}
 		} catch (InvalidClassSetDefException e) {
 			error("Internal error", e);
 		} catch (ModuleCreationException e) {
@@ -186,5 +209,9 @@ public class SampleModuleConfiguration {
 
 	public Graph<Node, Link> getGraph() {
 		return graph;
+	}
+
+	public List<QLearner> getRLearners() {
+		return QLearners;
 	}
 }

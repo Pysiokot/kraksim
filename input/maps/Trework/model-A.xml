@@ -23,19 +23,24 @@
 			</downlink>
 		</road>
 		<road id="L1R1" street="ulica Srodkowa Belka" from="L1"
-			  to="R1">
+					 to="R1">
+		<uplink>
+			<main length="400" numberOfLanes="2" />
+<!--			<blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="900000" />-->
+<!--			<blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="900000" />-->
+<!--			<blocked laneNumber="0" cell="230" lastCell="330" turnStart="0" turnEnd="900000" />-->
+			<blocked laneNumber="1" cell="340" lastCell="390" turnStart="0" turnEnd="900000" />
+		</uplink>
+		</road>
+		<road id="R1L1" street="ulica Srodkowa Belka" from="R1"
+			  to="L1">
 			<uplink>
 				<main length="400" numberOfLanes="2" />
 				<blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="9000" />
-				<blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="9000" />
-				<blocked laneNumber="0" cell="230" lastCell="330" turnStart="0" turnEnd="9000" />
-				<blocked laneNumber="1" cell="340" lastCell="390" turnStart="0" turnEnd="9000" />
+<!--				<blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="9000" />-->
+<!--				<blocked laneNumber="0" cell="230" lastCell="330" turnStart="0" turnEnd="9000" />-->
+<!--				<blocked laneNumber="1" cell="340" lastCell="390" turnStart="0" turnEnd="9000" />-->
 			</uplink>
-			<downlink>
-				<main length="400" numberOfLanes="2" />
-<!--				<blocked laneNumber="0" cell="100" lastCell="300" turnStart="0" turnEnd="3000" />-->
-<!--				<blocked laneNumber="1" cell="0" lastCell="400" turnStart="0" turnEnd="6500" />-->
-			</downlink>
 		</road>
 		<road id="RR1" street="ulica Zprawa" from="R"
 			  to="R1">
@@ -152,7 +157,7 @@
 				<phase num="2" duration="15">
 					<inlane arm="L1" lane="0" state="green" />
 					<inlane arm="R" lane="0" state="red" />
-					<inlane arm="R" lane="1" state="red" />
+					<inlane arm="R" lane="1" state="green" />
 					<inlane arm="T1" lane="0" state="red" />
 				</phase>
 				<phase num="3" duration="12">

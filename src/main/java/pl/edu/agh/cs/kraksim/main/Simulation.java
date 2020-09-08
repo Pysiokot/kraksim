@@ -12,6 +12,8 @@ import pl.edu.agh.cs.kraksim.iface.Clock;
 import pl.edu.agh.cs.kraksim.iface.eval.EvalIView;
 import pl.edu.agh.cs.kraksim.iface.sim.Route;
 import pl.edu.agh.cs.kraksim.iface.sim.TravelEndHandler;
+import pl.edu.agh.cs.kraksim.learning.QLearner;
+import pl.edu.agh.cs.kraksim.learning.WaitingCarsEnv;
 import pl.edu.agh.cs.kraksim.main.drivers.DecisionHelper;
 import pl.edu.agh.cs.kraksim.main.drivers.Driver;
 import pl.edu.agh.cs.kraksim.main.gui.Controllable;
@@ -34,7 +36,7 @@ import java.util.PriorityQueue;
 
 public class Simulation implements Clock, TravelEndHandler, Controllable {
 	private static final Logger logger = Logger.getLogger(Simulation.class);
-	
+
 	// run arguments
 	private final StartupParameters params = new StartupParameters();
 	private final SampleModuleConfiguration modules = new SampleModuleConfiguration();
@@ -286,6 +288,10 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 				}
 			}
 		}
+
+
+//		modules.getRLearners().forEach(QLearner::dumpStats);
+
 		// ===================================================================================
 		// FINILIZE TEST RUN
 		// ===================================================================================
@@ -357,6 +363,8 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 	 * ONE simulation step, one turn.
 	 */
 	private void step() {
+//		modules.getRLearners().forEach(QLearner::runPreEpoch);
+
 		try {
 			doDepartures();
 		} catch (NoRouteException e) {
@@ -397,6 +405,12 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 			}
 		}
 
+//		modules.getRLearners().forEach(QLearner::runPostEpoch);
+
+//		if(turn % 200 == 199)
+//		{
+//			modules.getRLearners().forEach(QLearner::dumpStats);
+//		}
 
 		visualizer.update(turn);
 		StatsUtil.dumpCarStats(modules.getCity(), modules.getStatView(), turn, statWriter);

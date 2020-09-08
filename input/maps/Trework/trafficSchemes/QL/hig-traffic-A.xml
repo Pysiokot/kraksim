@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+czas trwania schematu: 12h = 3600
+
+pomiędzy każdą parą węzłów generowane jest 200 samochodów
+z rozkładem jednostajnym
+-->
+<traffic>
+
+  <scheme count="57000">
+    <gateway id="L">
+      <uniform a="0" b="108000"/>
+    </gateway>
+    <gateway id="R"/>
+  </scheme>
+
+  <scheme count="57000">
+    <gateway id="R">
+      <uniform a="0" b="108000"/>
+    </gateway>
+    <gateway id="L"/>
+  </scheme>
+</traffic>

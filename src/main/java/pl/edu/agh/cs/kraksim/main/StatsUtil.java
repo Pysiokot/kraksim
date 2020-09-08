@@ -135,7 +135,7 @@ public class StatsUtil {
 
 	public static void dumpLinkStats(final City city, final PrintWriter statWriter, LinkStat linkStat, LinkStat linkRidingStat) {
 
-		statWriter.println("<stats>");
+		statWriter.println(String.format("<stats dang_sits=\"%d\">", Car.DANGEROUS_SITUATIONS));
 		for (Iterator<Link> i = city.linkIterator(); i.hasNext(); ) {
 			Link link = i.next();
 

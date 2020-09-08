@@ -9,7 +9,8 @@ public class SOTLParams
   final int  carStartDelay;
   /* maximum velocity of a car (in cells per turn) */
   final int  carMaxVelocity;
-  final static int  minimumGreen = 5;
+
+  private int  minimumGreen = 5;
   public int threshold;
 
   public SOTLParams(int zoneLength, int carStartDelay, int carMaxVelocity) {
@@ -25,5 +26,20 @@ public class SOTLParams
               "Car max velocity : " + carMaxVelocity + "  " +
               "Minimum green : " + minimumGreen + "  " +
               "Threshold : " + threshold + "  ";
+  }
+
+  public void increaseGreenDuration()
+  {
+    minimumGreen += 1;
+  }
+  public void decreaseGreenDuration()
+  {
+    if(minimumGreen > 3)
+      minimumGreen -= 1;
+  }
+
+  public int getMinGreenDuration()
+  {
+    return minimumGreen;
   }
 }

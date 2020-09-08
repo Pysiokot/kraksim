@@ -17,14 +17,14 @@ public class DriverArchetype {
             this.aggression = 1.0f;
             this.fear = 0.0f;
             this.tiredness = 0.0f;
-            this.independence = 1.0f;
+            this.independence = 0.8f;
         }
         else if (rand <= 0.3f) // zmęczony kierowca
         {
             this.fear = 0.5f;
             this.aggression = 0.1f;
             this.tiredness = 1.0f;
-            this.independence = 1.0f;
+            this.independence = 0.95f;
         }
         else if(rand <= 0.7f) // normalny kierowca
         {
@@ -47,6 +47,11 @@ public class DriverArchetype {
             this.tiredness = r.nextFloat();
             this.independence = r.nextFloat();
         }
+
+        this.fear = 1.0f;
+        this.aggression = 0.0f;
+        this.tiredness = 0.0f;
+        this.independence = 0.1f;
 
 //        this.aggression = 1.0f;
 //        this.fear = 0.0f;

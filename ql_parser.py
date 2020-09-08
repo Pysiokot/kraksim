@@ -34,9 +34,10 @@ def addNewResult(data_holder, key_name, data):
             curr_value[2 * i] += 16.0
             curr_value[(2 * i) + 1] += 16.0
 
+
     data_holder[key_name] = curr_value
 
-N = 20
+N = 1
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 mypath = os.path.join(dirname, 'output')
@@ -79,18 +80,19 @@ for onlyfile in onlyfiles:
 
     for item in itemlist:
         attr_val = int(item.attributes['begin'].value)
-        if attr_val < 900 or attr_val > 6300:
+        if attr_val < 42600 or attr_val > 107100:
             continue
 
         av_vel = float(item.attributes['avg_velocity'].value.replace(',', '.'))
         av_r_vel = float(item.attributes['avg_riding_velocity'].value.replace(',', '.'))
+        
         if not math.isnan(av_vel):
             av_item_ctr += 1
             mean_av += av_vel
             arv_item_ctr += 1
             mean_arv += av_r_vel
 
-        if attr_val == 6300: # pomijamy kilka pierwszych wyników (rozgrzewka)
+        if attr_val == 107100: # pomijamy kilka pierwszych wyników (rozgrzewka)
 
             # dump data
             mean = 0
@@ -118,7 +120,7 @@ for onlyfile in onlyfiles:
 
 result = getCalculatedResult(files_results_sum, N)
 
-f = open("result.csv", "w+")
+f = open("result_ql.csv", "w+")
 
 itemlist = xmldoc.getElementsByTagName('link')
 

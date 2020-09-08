@@ -43,7 +43,7 @@
 		<intersection id="P1011" x="290" y="581"></intersection>
 	</nodes>
 
-	<roads>
+	<roads defaultSpeedLimit="10">
 		<road id="G1R1" from="G1" to="R1">
 			<uplink>
 				<main length="100" numberOfLanes="3"  />
@@ -136,8 +136,8 @@
 
 		<road id="R1X1" from="R1" to="X1">
 			<uplink>
-				<main length="100" numberOfLanes="3"  />
-				<right length="20" />
+				<main length="1000" numberOfLanes="3"  />
+				<right length="200" />
 			</uplink>
 			<downlink>
 				<main length="100" numberOfLanes="3"  />

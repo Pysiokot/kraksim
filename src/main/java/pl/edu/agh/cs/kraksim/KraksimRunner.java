@@ -1,9 +1,11 @@
 package pl.edu.agh.cs.kraksim;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
+import pl.edu.agh.cs.kraksim.iface.eval.EvalIView;
 import pl.edu.agh.cs.kraksim.main.Simulation;
 import pl.edu.agh.cs.kraksim.main.gui.GUISimulationVisualizer;
 import pl.edu.agh.cs.kraksim.main.gui.MainVisualisationPanel;
@@ -23,6 +25,7 @@ public class KraksimRunner {
 
 	private static FileAppender appender;
 	private static final boolean testTries = true;
+//	private static final boolean testTries = false;
 
 	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
 //	private static final String[] configFiles = new String[] {"hig"};
@@ -38,7 +41,7 @@ public class KraksimRunner {
 			String startName = configFiles[0];
 
 			for (String subName : configFiles){
-				for (int i = 0; i<50 ; i++) {
+				for (int i = 0; i<1 ; i++) {
 					if (args.length > 0) {
 						KraksimConfigurator.setConfigPath(args[0]);
 					}
@@ -148,7 +151,8 @@ public class KraksimRunner {
 
 		final Properties props = KraksimConfigurator.getPropertiesFromFile();
 
-		props.setProperty("statOutFile", props.getProperty("statOutFile"));
+		String statOutFileName = props.getProperty("statOutFile") + Integer.toString(1);
+		props.setProperty("statOutFile", statOutFileName);
 		// we assume that if there is no word about visualisation in config,
 		// then it is necessary...
 		// but if there is...
