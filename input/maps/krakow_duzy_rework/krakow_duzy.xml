@@ -416,10 +416,20 @@
     <road id="roads_109" street="roads_109" speedLimit="20" from="C28" to="C74">
       <uplink>
         <main length="640" numberOfLanes="2" />
+        			<blocked laneNumber="0" cell="10" lastCell="200" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="220" lastCell="300" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="0" cell="320" lastCell="400" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="420" lastCell="620" turnStart="0" turnEnd="900000" />
       </uplink>
-      <downlink>
+    </road>
+    <road id="roads_109a" street="roads_109a" speedLimit="20" from="C74" to="C28">
+      <uplink>
         <main length="640" numberOfLanes="2" />
-      </downlink>
+        <blocked laneNumber="0" cell="10" lastCell="200" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="220" lastCell="300" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="0" cell="320" lastCell="400" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="420" lastCell="620" turnStart="0" turnEnd="900000" />
+      </uplink>
     </road>
     <road id="roads_94" street="roads_94" speedLimit="20" from="C28" to="I59">
       <uplink>
@@ -480,10 +490,20 @@
     <road id="roads_119" street="roads_119" speedLimit="20" from="C95" to="C91">
       <uplink>
         <main length="200" numberOfLanes="2" />
+        			<blocked laneNumber="0" cell="10" lastCell="60" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="70" lastCell="120" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="0" cell="130" lastCell="160" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="180" lastCell="190" turnStart="0" turnEnd="900000" />
       </uplink>
-      <downlink>
+    </road>
+    <road id="roads_119a" street="roads_119a" speedLimit="20" from="C91" to="C95">
+      <uplink>
         <main length="200" numberOfLanes="2" />
-      </downlink>
+        <blocked laneNumber="0" cell="10" lastCell="60" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="70" lastCell="120" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="0" cell="130" lastCell="160" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="180" lastCell="190" turnStart="0" turnEnd="900000" />
+      </uplink>
     </road>
     <road id="roads_115" street="roads_115" speedLimit="20" from="C96" to="C92">
       <uplink>
@@ -736,10 +756,20 @@
     <road id="roads_37" street="roads_37" speedLimit="17" from="I32" to="I31">
       <uplink>
         <main length="320" numberOfLanes="2" />
+        			<blocked laneNumber="0" cell="10" lastCell="70" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="90" lastCell="180" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="0" cell="190" lastCell="290" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="290" lastCell="300" turnStart="0" turnEnd="900000" />
       </uplink>
-      <downlink>
+    </road>
+    <road id="roads_37a" street="roads_37a" speedLimit="17" from="I31" to="I32">
+      <uplink>
         <main length="320" numberOfLanes="2" />
-      </downlink>
+          <blocked laneNumber="0" cell="10" lastCell="70" turnStart="0" turnEnd="900000" />
+          <blocked laneNumber="1" cell="90" lastCell="180" turnStart="0" turnEnd="900000" />
+          <blocked laneNumber="0" cell="190" lastCell="290" turnStart="0" turnEnd="900000" />
+          <blocked laneNumber="1" cell="290" lastCell="300" turnStart="0" turnEnd="900000" />
+      </uplink>
     </road>
     <road id="roads_36" street="roads_36" speedLimit="20" from="I32" to="I33">
       <uplink>
@@ -784,10 +814,20 @@
     <road id="roads_44" street="roads_44" speedLimit="20" from="I35" to="C28">
       <uplink>
         <main length="350" numberOfLanes="2" />
+        			<blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="0" cell="230" lastCell="300" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="310" lastCell="330" turnStart="0" turnEnd="900000" />
       </uplink>
-      <downlink>
+    </road>
+    <road id="roads_44" street="roads_44" speedLimit="20" from="C28" to="I35">
+      <uplink>
         <main length="350" numberOfLanes="2" />
-      </downlink>
+        <blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="0" cell="230" lastCell="300" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="310" lastCell="330" turnStart="0" turnEnd="900000" />
+      </uplink>
     </road>
     <road id="roads_47" street="roads_47" speedLimit="20" from="I36" to="A17">
       <uplink>
@@ -1168,10 +1208,20 @@
     <road id="roads_97" street="roads_97" speedLimit="20" from="I67" to="I68">
       <uplink>
         <main length="270" numberOfLanes="2" />
+        			<blocked laneNumber="0" cell="10" lastCell="100" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="120" lastCell="180" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="0" cell="195" lastCell="230" turnStart="0" turnEnd="900000" />
+        			<blocked laneNumber="1" cell="250" lastCell="255" turnStart="0" turnEnd="900000" />
       </uplink>
-      <downlink>
+    </road>
+    <road id="roads_97a" street="roads_97a" speedLimit="20" from="I68" to="I67">
+      <uplink>
         <main length="270" numberOfLanes="2" />
-      </downlink>
+        <blocked laneNumber="0" cell="10" lastCell="100" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="120" lastCell="180" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="0" cell="195" lastCell="230" turnStart="0" turnEnd="900000" />
+        <blocked laneNumber="1" cell="250" lastCell="255" turnStart="0" turnEnd="900000" />
+      </uplink>
     </road>
     <road id="roads_99" street="roads_99" speedLimit="20" from="I68" to="B56">
       <uplink>
