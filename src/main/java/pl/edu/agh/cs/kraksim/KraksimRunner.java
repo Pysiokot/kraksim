@@ -26,11 +26,12 @@ public class KraksimRunner {
 	public static final Logger LOGGER2 = Logger.getLogger(CityMiniStatExt.class);
 
 	private static FileAppender appender;
-//	private static final boolean testTries = true;
-	private static final boolean testTries = false;
+	private static final boolean testTries = true;
+//	private static final boolean testTries = false;
 
-	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
+//	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
 //	private static final String[] configFiles = new String[] {"hig"};
+	private static final String[] configFiles = new String[] {"hig"};
 
 	/**
 	 * Main
@@ -49,11 +50,12 @@ public class KraksimRunner {
 				String statOutFileName = props.getProperty("statOutFile");
 
 
-				float[] tmp = new float[4];
+				float[] tmp = new float[5];
 				switch (x)
 				{
 					case 0:
 					{
+						props.setProperty("useArchetype", "false");
 						tmp[0] = 0.0f;
 						tmp[1] = 0.0f;
 						tmp[2] = 0.0f;
@@ -61,10 +63,14 @@ public class KraksimRunner {
 						tmp[4] = 0.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "no_arch_" + statOutFileName;
+						statOutFileName += "_no_arch";
+
+						break;
 					}
 					case 1:
 					{
+						props.setProperty("useArchetype", "true");
+
 						tmp[0] = 0.1f;
 						tmp[1] = 0.3f;
 						tmp[2] = 0.7f;
@@ -72,12 +78,14 @@ public class KraksimRunner {
 						tmp[4] = 1.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "arch_" + statOutFileName;
+						statOutFileName += "_arch";
 
 						break;
 					}
 					case 2:
 					{
+						props.setProperty("useArchetype", "true");
+
 						tmp[0] = 1.0f;
 						tmp[1] = 0.0f;
 						tmp[2] = 0.0f;
@@ -85,12 +93,14 @@ public class KraksimRunner {
 						tmp[4] = 0.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "aggr_" + statOutFileName;
+						statOutFileName += "_aggr";
 
 						break;
 					}
 					case 3:
 					{
+						props.setProperty("useArchetype", "true");
+
 						tmp[0] = 0.0f;
 						tmp[1] = 1.0f;
 						tmp[2] = 0.0f;
@@ -98,12 +108,14 @@ public class KraksimRunner {
 						tmp[4] = 0.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "tired_" + statOutFileName;
+						statOutFileName += "_tired";
 
 						break;
 					}
 					case 4:
 					{
+						props.setProperty("useArchetype", "true");
+
 						tmp[0] = 0.0f;
 						tmp[1] = 0.0f;
 						tmp[2] = 1.0f;
@@ -111,12 +123,14 @@ public class KraksimRunner {
 						tmp[4] = 0.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "normal_" + statOutFileName;
+						statOutFileName += "_normal";
 
 						break;
 					}
 					case 5:
 					{
+						props.setProperty("useArchetype", "true");
+
 						tmp[0] = 0.0f;
 						tmp[1] = 0.0f;
 						tmp[2] = 0.0f;
@@ -124,12 +138,14 @@ public class KraksimRunner {
 						tmp[4] = 0.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "sunday_" + statOutFileName;
+						statOutFileName += "_sunday";
 
 						break;
 					}
 					case 6:
 					{
+						props.setProperty("useArchetype", "true");
+
 						tmp[0] = 0.0f;
 						tmp[1] = 0.0f;
 						tmp[2] = 0.0f;
@@ -137,7 +153,7 @@ public class KraksimRunner {
 						tmp[4] = 1.0f;
 
 						DriverArchetype.rozklad = tmp;
-						statOutFileName = "random_" + statOutFileName;
+						statOutFileName += "_random";
 
 						break;
 					}
@@ -160,7 +176,7 @@ public class KraksimRunner {
 
 
 						statOutFileName = statOutFileName.replaceAll(startName, subName);
-						statOutFileName += "_" + Integer.toString(i);
+//						statOutFileName += "_" + Integer.toString(i);
 
 //					try {
 //						appender = new FileAppender(new PatternLayout(), "output/results/" + subName + "_" + (i + 1) + ".log");

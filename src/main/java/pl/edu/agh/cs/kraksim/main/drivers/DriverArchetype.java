@@ -14,35 +14,35 @@ public class DriverArchetype {
     {
         Random r = new Random();
         float rand = r.nextFloat();
-        if (rand <= rozklad[0]) // agresywny kierowca
+        if (rand < rozklad[0]) // agresywny kierowca
         {
             this.aggression = 1.0f;
             this.fear = 0.0f;
             this.tiredness = 0.0f;
             this.independence = 0.8f;
         }
-        else if (rand <= rozklad[1]) // zmęczony kierowca
+        else if (rand < rozklad[1]) // zmęczony kierowca
         {
             this.fear = 0.5f;
             this.aggression = 0.1f;
             this.tiredness = 1.0f;
             this.independence = 0.95f;
         }
-        else if(rand <= rozklad[2]) // normalny kierowca
+        else if(rand < rozklad[2]) // normalny kierowca
         {
             this.fear = 0.25f;
             this.aggression = 0.3f;
             this.tiredness = 0.0f;
             this.independence = 0.5f;
         }
-        else if(rand <= rozklad[3]) // niedzielny kierowca
+        else if(rand < rozklad[3]) // niedzielny kierowca
         {
             this.fear = 1.0f;
             this.aggression = 0.0f;
             this.tiredness = 0.0f;
             this.independence = 0.1f;
         }
-        else if(rand <= rozklad[4])// losowy
+        else if(rand < rozklad[4])// losowy
         {
             this.fear = r.nextFloat();
             this.aggression = r.nextFloat();
