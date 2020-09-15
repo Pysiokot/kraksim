@@ -386,18 +386,18 @@ public class RoadNetXmlHandler extends DefaultHandler {
 	private void createLane(String rawName, Attributes attrs) {
 		if (rawName.equals("main")) {
 			lastLaneType = "main";
-			mainLaneLen = Integer.parseInt(attrs.getValue("length"));
+			mainLaneLen = Integer.parseInt(attrs.getValue("length"))  * 10;
 			String numberOfLanesStr = attrs.getValue("numberOfLanes");
 			numberOfLanes = Integer.parseInt(numberOfLanesStr == null ? "1" : numberOfLanesStr);
 			
 		}
 		if (rawName.equals("left")) {
 			lastLaneType = "left";
-			leftLaneLenTab.add(Integer.parseInt(attrs.getValue("length")));
+			leftLaneLenTab.add(Integer.parseInt(attrs.getValue("length")) * 10);
 		}
 		if (rawName.equals("right")) {
 			lastLaneType = "right";
-			rightLaneLenTab.add(Integer.parseInt(attrs.getValue("length")));
+			rightLaneLenTab.add(Integer.parseInt(attrs.getValue("length")) * 10);
 		}
 	}
 	

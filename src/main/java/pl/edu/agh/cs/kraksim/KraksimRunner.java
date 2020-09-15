@@ -26,12 +26,12 @@ public class KraksimRunner {
 	public static final Logger LOGGER2 = Logger.getLogger(CityMiniStatExt.class);
 
 	private static FileAppender appender;
-	private static final boolean testTries = true;
-//	private static final boolean testTries = false;
+//	private static final boolean testTries = true;
+	private static final boolean testTries = false;
 
-//	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
+	private static final String[] configFiles = new String[] {"loe", "low", "mid", "hig"};
 //	private static final String[] configFiles = new String[] {"hig"};
-	private static final String[] configFiles = new String[] {"hig"};
+//	private static final String[] configFiles = new String[] {"mid"};
 
 	/**
 	 * Main
@@ -270,6 +270,35 @@ public class KraksimRunner {
 		}
 
 		final Properties props = KraksimConfigurator.getPropertiesFromFile();
+
+
+		float[] tmp = new float[5];
+
+		if(props.getProperty("useArchetype").equals("true"))
+		{
+			tmp[0] = 0.1f;
+			tmp[1] = 0.3f;
+			tmp[2] = 0.7f;
+			tmp[3] = 0.75f;
+			tmp[4] = 1.0f;
+//			tmp[0] = 1.0f;
+//			tmp[1] = 0.0f;
+//			tmp[2] = 0.0f;
+//			tmp[3] = 0.0f;
+//			tmp[4] = 0.0f;
+		}
+		else
+		{
+			tmp[0] = 0.0f;
+			tmp[1] = 0.0f;
+			tmp[2] = 0.0f;
+			tmp[3] = 0.0f;
+			tmp[4] = 0.0f;
+		}
+
+
+		DriverArchetype.rozklad = tmp;
+
 
 		String statOutFileName = props.getProperty("statOutFile") + Integer.toString(1);
 		props.setProperty("statOutFile", statOutFileName);

@@ -29,14 +29,14 @@
 <!--			<blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="900000" />-->
 <!--			<blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="900000" />-->
 <!--			<blocked laneNumber="0" cell="230" lastCell="330" turnStart="0" turnEnd="900000" />-->
-			<blocked laneNumber="1" cell="340" lastCell="390" turnStart="0" turnEnd="900000" />
+<!--			<blocked laneNumber="1" cell="340" lastCell="390" turnStart="0" turnEnd="900000" />-->
 		</uplink>
 		</road>
 		<road id="R1L1" street="ulica Srodkowa Belka" from="R1"
 			  to="L1">
 			<uplink>
 				<main length="400" numberOfLanes="2" />
-				<blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="9000" />
+<!--				<blocked laneNumber="0" cell="10" lastCell="110" turnStart="0" turnEnd="9000" />-->
 <!--				<blocked laneNumber="1" cell="120" lastCell="220" turnStart="0" turnEnd="9000" />-->
 <!--				<blocked laneNumber="0" cell="230" lastCell="330" turnStart="0" turnEnd="9000" />-->
 <!--				<blocked laneNumber="1" cell="340" lastCell="390" turnStart="0" turnEnd="9000" />-->

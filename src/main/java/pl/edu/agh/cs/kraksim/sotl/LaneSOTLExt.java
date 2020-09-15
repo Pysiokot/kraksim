@@ -9,6 +9,7 @@ import pl.edu.agh.cs.kraksim.iface.mon.CarDriveHandler;
 import pl.edu.agh.cs.kraksim.iface.mon.LaneMonIface;
 import pl.edu.agh.cs.kraksim.iface.mon.MonIView;
 import pl.edu.agh.cs.kraksim.learning.LightsParams;
+import pl.edu.agh.cs.kraksim.main.Simulation;
 
 class LaneSOTLExt implements LaneEvalIface {
 	private static final Logger LOGGER = Logger.getLogger(LaneSOTLExt.class);
@@ -57,8 +58,10 @@ class LaneSOTLExt implements LaneEvalIface {
 
 	public float getEvaluation() {
 		LOGGER.trace(id + " carCount=" + carCount + ", sotlValue=" + sotlLaneValue + ", blocked=" + laneBlockExt.isBlocked());
-//		if (sotlLaneValue > LightsParams.getInstance(thisLane.getOwner()).getWaitingCars()) {
-		if (sotlLaneValue > params.threshold) {
+
+		int thresh = Simulation.useLearning ? LightsParams.getInstance(thisLane.getOwner()).getWaitingCars() : params.threshold;
+
+		if (sotlLaneValue > thresh) {
 			return sotlLaneValue;
 		} else {
 			return sotlLaneValue;
@@ -67,8 +70,10 @@ class LaneSOTLExt implements LaneEvalIface {
 
 	public int getMinGreenDuration() {
 		int ret = (int) ((carCount) * (float) params.carStartDelay + (carCount / (float) params.carMaxVelocity));
-//		return Math.max(ret, LightsParams.getInstance(thisLane.getOwner()).getMin_green());
-		return Math.max(ret, params.getMinGreenDuration());
+
+		int minVal = Simulation.useLearning ? LightsParams.getInstance(thisLane.getOwner()).getMin_green() : params.getMinGreenDuration();
+
+		return Math.max(ret, minVal);
 	}
 
 	public void increaseMinGreenDurForLane()

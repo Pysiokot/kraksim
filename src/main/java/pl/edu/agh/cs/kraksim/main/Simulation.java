@@ -66,6 +66,7 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 
 	private final PrintWriter console = new PrintWriter(System.out);
 
+	public static final boolean useLearning = false;
 	private long startTime;
 
 	private void error(final String text, final Throwable error) {
@@ -289,8 +290,13 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 			}
 		}
 
-
-//		modules.getRLearners().forEach(QLearner::dumpStats);
+		if(useLearning)
+		{
+			for (QLearner l : modules.getRLearners())
+			{
+				l.dumpStats();
+			}
+		}
 
 		// ===================================================================================
 		// FINILIZE TEST RUN
@@ -363,7 +369,15 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 	 * ONE simulation step, one turn.
 	 */
 	private void step() {
-//		modules.getRLearners().forEach(QLearner::runPreEpoch);
+
+		if(useLearning)
+		{
+			for (QLearner l : modules.getRLearners())
+			{
+				l.runPreEpoch();
+			}
+		}
+
 
 		try {
 			doDepartures();
@@ -405,7 +419,13 @@ public class Simulation implements Clock, TravelEndHandler, Controllable {
 			}
 		}
 
-//		modules.getRLearners().forEach(QLearner::runPostEpoch);
+		if(useLearning)
+		{
+			for (QLearner l : modules.getRLearners())
+			{
+				l.runPostEpoch();
+			}
+		}
 
 //		if(turn % 200 == 199)
 //		{

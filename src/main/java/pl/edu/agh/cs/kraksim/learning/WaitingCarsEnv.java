@@ -80,9 +80,9 @@ public class WaitingCarsEnv implements IEnv {
             waitingCarsState = 6;
         }
 
-        if (waitingCarsState != 0) {
-            LOG.info(String.format("Next state: %d %s %d %d", clock.getTurn(), link.getId(), action, waitingCarsState));
-        }
+//        if (waitingCarsState != 0) {
+//            LOG.info(String.format("Next state: %d %s %d %d", clock.getTurn(), link.getId(), action, waitingCarsState));
+//        }
 
         int[] state = {waitingCarsState};
 
@@ -159,7 +159,12 @@ public class WaitingCarsEnv implements IEnv {
                 throw new RuntimeException("Unknown action");
         }
 
-        LOG.info(String.format("<lightsParams: turn=\"%d\", link=\"%s\" action=\"%d\" threshold=\"%d\" min_green=\"%d\" waiting=\"%d\" oldGreen=\"%d\"/>", clock.getTurn(), link.getId(), action, tmpMC, tmpMG, (int)statView.ext(link).getCarCountOnRedLigth(), oldMinGreen));
+//        LOG.info(String.format("<lightsParams: turn=\"%d\", link=\"%s\" action=\"%d\" threshold=\"%d\" min_green=\"%d\" waiting=\"%d\" oldGreen=\"%d\"/>", clock.getTurn(), link.getId(), action, tmpMC, tmpMG, (int)statView.ext(link).getCarCountOnRedLigth(), oldMinGreen));
+
+        if(this.link.getId().equals("RR1"))
+        {
+            LOG.info(String.format("%d;%d;%d;%d;%d", clock.getTurn(), action, tmpMC, tmpMG, (int)previousWaitingCars));
+        }
     }
 
 
@@ -191,7 +196,7 @@ public class WaitingCarsEnv implements IEnv {
     @Override
     public int[] resetState() {
         if (successScore != 0 && failScore != 0) {
-            LOG.info(String.format("Reset: %d %s %d %d", clock.getTurn(), link.getId(), successScore, failScore));
+//            LOG.info(String.format("Reset: %d %s %d %d", clock.getTurn(), link.getId(), successScore, failScore));
             successScore = 0;
             failScore = 0;
         }

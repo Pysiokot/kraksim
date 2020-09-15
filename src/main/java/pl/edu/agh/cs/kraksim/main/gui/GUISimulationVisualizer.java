@@ -203,7 +203,7 @@ public class GUISimulationVisualizer implements SimulationVisualizer {
 			LOGGER_normalCount.info(turn + "," + cityStat.getNormalCarsCount());
 			
 			LOGGER_normalCarTurnVelocity.info(turn + "," + avgCarTurnVel.getAvgNormalCarVelocity());
-			LOGGER_emergencyCarTurnVelocity.info(turn + "," + avgCarTurnVel.getAvgEmergencyCarVelocity());
+//			LOGGER_emergencyCarTurnVelocity.info(turn + "," + avgCarTurnVel.getAvgEmergencyCarVelocity());
 			LOGGER_allCarTurnVelocity.info(turn + "," + avgCarTurnVel.getAvgAllVelocity());
 		}
 

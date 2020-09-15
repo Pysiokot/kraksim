@@ -50,8 +50,6 @@ public class QLearner {
         gamma = 0.8;
         lambda = 0.1;
 
-        System.out.println("QLearner initialised");
-
     }
 
     // FIXME cleanup

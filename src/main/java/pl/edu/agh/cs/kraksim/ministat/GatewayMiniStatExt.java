@@ -19,7 +19,7 @@ public class GatewayMiniStatExt {
 	GatewayMonIface gateMon;
 
 	GatewayMiniStatExt(final Gateway gateway, MonIView monView, final Clock clock, final StatHelper helper) {
-		LOGGER.trace("for: " + gateway);
+//		LOGGER.trace("for: " + gateway);
 		routeStatMap = new HashMap<>();
 		gateMon = monView.ext(gateway);
 		gateMon.installEntranceSensor(new CarEntranceHandler() {
@@ -44,8 +44,9 @@ public class GatewayMiniStatExt {
 	}
 
 	void noteTravel(Gateway dest, int length, int duration) {
-		LOGGER.trace("Trip: to=" + dest + ", len=" + length + ", dur=" + duration);
-		
+//		LOGGER.trace("Trip: to=" + dest + ", len=" + length + ", dur=" + duration);
+		LOGGER.trace(length + "\t" + duration);
+
 		RouteStat rs = getRouteStatForGateway(dest);
 		rs.noteTravel(length, duration);
 		updateRouteStat(dest, rs);
@@ -64,7 +65,7 @@ public class GatewayMiniStatExt {
 	}
 
 	public RouteStat getRouteStat(Gateway dest) {
-		LOGGER.trace("to=" + dest);
+//		LOGGER.trace("to=" + dest);
 		return routeStatMap.get(dest);
 	}
 }
