@@ -36,7 +36,7 @@ def addNewResult(data_holder, key_name, data):
 
     data_holder[key_name] = curr_value
 
-N = 20
+N = 1
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 mypath = os.path.join(dirname, 'output')

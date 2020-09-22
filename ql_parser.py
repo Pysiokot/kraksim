@@ -80,7 +80,7 @@ for onlyfile in onlyfiles:
 
     for item in itemlist:
         attr_val = int(item.attributes['begin'].value)
-        if attr_val < 42600 or attr_val > 107100:
+        if attr_val < 100000 or attr_val > 432000:
             continue
 
         av_vel = float(item.attributes['avg_velocity'].value.replace(',', '.'))
@@ -92,7 +92,7 @@ for onlyfile in onlyfiles:
             arv_item_ctr += 1
             mean_arv += av_r_vel
 
-        if attr_val == 107100: # pomijamy kilka pierwszych wyników (rozgrzewka)
+        if attr_val == 430800: # pomijamy kilka pierwszych wyników (rozgrzewka)
 
             # dump data
             mean = 0

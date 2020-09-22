@@ -50,7 +50,7 @@ for onlyfile in onlyfiles:
 
     file_name_splited = onlyfile.split("_")
 
-    key_name = file_name_splited[0]
+    key_name = file_name_splited[0] + file_name_splited[2]
     xmldoc = xd.parse(os.path.join(mypath, onlyfile))
     
     if key_name not in files_results_sum:
